@@ -190,13 +190,18 @@ bool remove_task(const size_t id) {
         printf("Please enter a valid id\n");
         return false;
     }
+    
     size_t index = id - 1;
+    Task task = tasks.data[index];
+    free_task_memory(task);
     for (size_t i = index; i + 1< tasks.size; i++) {
         tasks.data[i] = tasks.data[i + 1];
         tasks.data[i].id -= 1;
     }
 
-    if (tasks.size - 1 <= tasks.capacity / 4) {
+    tasks.size--;
+
+    if (tasks.size <= tasks.capacity / 4) {
         size_t new_capacity = tasks.capacity / 2;
         if (new_capacity == 0) {
             new_capacity = 1;
@@ -216,7 +221,6 @@ bool remove_task(const size_t id) {
             return false;
         }
     }
-    tasks.size--;
     printf("Successfully removed task!\n");
     return true;
     }
