@@ -17,6 +17,7 @@ typedef struct {
     char *name;
     bool urgent;
     Date date;
+    bool test;
 } Task;
 
 typedef struct {

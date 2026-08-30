@@ -369,16 +369,17 @@ void recalibrate_ids() {
     }
 }
 
-bool free_task_memory(size_t id) {
-    size_t i = id - 1;
-    free(tasks.data[i].name);
-    free(tasks.data[i].date.date_string);
+bool free_task_memory(Task task) {
+    if (task.test == false) {
+        free(task.name);
+        free(task.date.date_string);
+    }
     return true;
 }
 
 bool free_task_list_memory() {
     for (size_t i = 0; i < tasks.size; i++) {
-        free_task_memory(i + 1);
+        free_task_memory(tasks.data[i]);
     }
     free(tasks.data);
     return true;

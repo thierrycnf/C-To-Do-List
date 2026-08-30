@@ -18,7 +18,8 @@ int main(void) {
         .date = test_date,
         .id = ++next_task,
         .name = "do homework",
-        .urgent = false
+        .urgent = false,
+        .test = true
     };
 
     add_task(test_task);
