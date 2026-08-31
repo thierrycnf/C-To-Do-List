@@ -7,6 +7,9 @@
 int main(void) {
 
     tasks.data = malloc(1 * sizeof(Task));
+    if (tasks.data == NULL) {
+
+    }
     Date test_date = {
         .day = 1,
         .month = 1,
@@ -34,23 +37,31 @@ int main(void) {
     // };
 
     do {
-        printf("What would you like to do\n");
-        printf("A. Create a task\n");
-        printf("B. View your tasks\n");
-        printf("C. Delete a task\n");
-        printf("D. Sort tasks\n");
-        printf("E. End program\n");
+        start:
+
+            printf("What would you like to do\n");
+            printf("A. Create a task\n");
+            printf("B. View your tasks\n");
+            printf("C. Delete a task\n");
+            printf("D. Sort tasks\n");
+            printf("E. End program\n");
             
         if (fgets(buffer, sizeof buffer, stdin) != NULL) {
             buffer[strcspn(buffer, "\n")] = '\0';
             if (strcmp(buffer, "A") == 0) {
                 task.urgent = get_urgent();
                 task.name = get_name();
+                task.test = false;
+                if (task.name == NULL) {
+                    goto start;
+                }
                 
                 get_date(&task);
                 task.id =  tasks.size + 1;
                 
-                add_task(task);
+                if (!add_task(task)) {
+                    free_task_memory(task);
+                }
             }
             else if (strcmp(buffer, "B") == 0) {
                 if (tasks.size == 0) {
