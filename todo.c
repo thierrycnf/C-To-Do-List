@@ -264,7 +264,7 @@ bool task_cmp(Task T1, Task T2) {
     char *T1_date_string = get_date_string(T1);
     char *T2_date_string = get_date_string(T2);
 
-    if (strcmp(*T1_date_string, *T2_date_string) != 0) {
+    if (strcmp(T1_date_string, T2_date_string) != 0) {
         return false;
     }
 
@@ -427,7 +427,7 @@ void merge(size_t p, size_t q, size_t r) {
 
     if (L.data == NULL || R.data == NULL) {
         printf("Failed to allocate memory for subarrays\n");
-        return NULL;
+        return;
     }
 
 
