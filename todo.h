@@ -39,29 +39,29 @@ bool sort_tasks_urgent();
 bool sort_tasks_date();
 void recalibrate_ids();
 
-char *get_date_string();
-size_t get_day();
-size_t get_month();
-size_t get_year();
-void get_date();
+char *get_date_string(Task task);
+size_t get_day(void);
+size_t get_month(void);
+size_t get_year(void);
+void get_date(void);
 
 void print_task(Task task);
-bool get_urgent();
-char *get_name();
-size_t get_id();
-char *get_sort_choice();
+bool get_urgent(void);
+char *get_name(void);
+size_t get_id(void);
+char *get_sort_choice(void);
 
 bool task_list_cmp(Task_List A1, Task_List A2);
 bool task_cmp(Task T1, Task T2);
 
-bool is_sorted_urgent();
-bool is_sorted_date();
+bool is_sorted_urgent(void);
+bool is_sorted_date(void);
 
 void merge_sort(size_t p, size_t r);
 void merge(size_t p, size_t q, size_t r);
 
 bool free_task_memory(Task task);
-bool free_task_list_memory();
+bool free_task_list_memory(void);
 
 
 #endif

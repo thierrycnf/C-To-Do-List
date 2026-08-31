@@ -82,6 +82,7 @@ int main(void) {
                 else if (strcmp(sort_choice, "date") == 0) {
                     sort_tasks_date();
                 }
+                free(sort_choice);
                 
             }
             else if (strcmp(buffer, "E") == 0) {

@@ -48,7 +48,7 @@ char *get_date_string(Task task){
     return date;
 }
 
-size_t get_day() {
+size_t get_day(void) {
     time_t now = time(NULL);
     struct tm *local = localtime(&now);
 
@@ -57,7 +57,7 @@ size_t get_day() {
     return day;
 }
 
-size_t get_month() {
+size_t get_month(void) {
     time_t now = time(NULL);
     struct tm *local = localtime(&now);
 
@@ -66,7 +66,7 @@ size_t get_month() {
     return month;
 }
 
-size_t get_year() {
+size_t get_year(void) {
     time_t now = time(NULL);
     struct tm *local = localtime(&now);
 
@@ -98,7 +98,7 @@ void my_to_lower(char *string) {
         string[i] = tolower(string[i]);
     }
 }
-bool get_urgent() {
+bool get_urgent(void) {
     char buffer[8];
     bool valid_input = false;
     do {
@@ -131,7 +131,7 @@ bool get_urgent() {
     
 }
 
-char *get_name() {
+char *get_name(void) {
     char *buffer = malloc(100 * sizeof(*buffer));
      if (buffer == NULL) {
         printf("Failed to allocate memory for name string\n");
@@ -153,9 +153,13 @@ char *get_name() {
     
 }
 
-char *get_sort_choice() {
+char *get_sort_choice(void) {
     static size_t allocated_space = 10;
     char *buffer = malloc(allocated_space * sizeof(*buffer));
+    if (buffer == NULL) {
+        printf("Failed to allocated memory for buffer\n");
+        return;
+    }
     bool valid_input = false;
     do {
         printf("How would you like to sort your tasks? [date/urgency]\n");
@@ -206,9 +210,8 @@ bool remove_task(const size_t id) {
         tasks.data[i].id -= 1;
     }
 
-    tasks.size--;
 
-    if (tasks.size <= tasks.capacity / 4) {
+    if (--tasks.size <= tasks.capacity / 4) {
         size_t new_capacity = tasks.capacity / 2;
         if (new_capacity == 0) {
             new_capacity = 1;
@@ -233,7 +236,7 @@ bool remove_task(const size_t id) {
     }
         
 
-size_t get_id() {
+size_t get_id(void) {
     char buffer[32];
     char *end;
     size_t id;
@@ -261,10 +264,9 @@ size_t get_id() {
 }
 
 bool task_cmp(Task T1, Task T2) {
-    char *T1_date_string = get_date_string(T1);
-    char *T2_date_string = get_date_string(T2);
 
-    if (strcmp(T1_date_string, T2_date_string) != 0) {
+
+    if (T1.date.total != T2.date.total) {
         return false;
     }
 
@@ -272,9 +274,6 @@ bool task_cmp(Task T1, Task T2) {
         return false;
     }
 
-    if (strcmp(T1.name, T2.name) != 0) {
-        return false;
-    }
 
     if (T1.id != T2.id) {
         return false;
@@ -300,7 +299,7 @@ bool task_list_cmp(Task_List A1, Task_List A2) {
     return true;
 }
 
-bool is_sorted_urgent() {
+bool is_sorted_urgent(void) {
     bool encountered_non_urgent = false;
     for (size_t i = 0; i < tasks.size; i++) {
         if (tasks.data[i].urgent == false) {
@@ -315,7 +314,7 @@ bool is_sorted_urgent() {
     return true;
 }
 
-bool is_sorted_date() {
+bool is_sorted_date(void) {
     for (size_t i = 1; i < tasks.size; i++) {
         if (tasks.data[i].date.total < tasks.data[i - 1].date.total) {
             return false;
@@ -323,7 +322,7 @@ bool is_sorted_date() {
     }
     return true;
 }
-bool sort_tasks_urgent() {
+bool sort_tasks_urgent(void) {
     if (is_sorted_urgent()) {
         printf("Task list is already sorted!\n");
         return false;
@@ -364,7 +363,7 @@ bool sort_tasks_urgent() {
     return true;
 }
 
-bool sort_tasks_date() {
+bool sort_tasks_date(void) {
     if (is_sorted_date() == false) {
         merge_sort(0, tasks.size - 1);
         recalibrate_ids();
@@ -377,7 +376,7 @@ bool sort_tasks_date() {
 
 } 
 
-void recalibrate_ids() {
+void recalibrate_ids(void) {
     for (size_t i = 0; i < tasks.size; i++) {
         tasks.data[i].id = i + 1;;
     }
@@ -391,7 +390,7 @@ bool free_task_memory(Task task) {
     return true;
 }
 
-bool free_task_list_memory() {
+bool free_task_list_memory(void) {
     for (size_t i = 0; i < tasks.size; i++) {
         free_task_memory(tasks.data[i]);
     }
@@ -425,9 +424,13 @@ void merge(size_t p, size_t q, size_t r) {
         .size = 0
     };
 
-    if (L.data == NULL || R.data == NULL) {
-        printf("Failed to allocate memory for subarrays\n");
+    if (L.data == NULL && R.data != NULL) {
+        printf("Failed to allocate memory for left subarray\n");
+        free(R.data);
         return;
+    }
+    else if (L.data != NULL && R.data == NULL) {
+        printf("Failed to allocate memory for right subarray\n");
     }
 
 
