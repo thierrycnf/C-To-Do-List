@@ -3,3 +3,5 @@ A simple terminal based to do list software that allows users to:
   2. Sort tasks based on user-determined urgency or the date of the task
   3. View all the tasks that have been created
 
+HOW TO RUN:
+  Simply open the To_Do_List executable and enjoy!
