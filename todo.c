@@ -149,11 +149,12 @@ char *get_name() {
 }
 
 char *get_sort_choice() {
-    char *buffer = malloc(10 * sizeof(*buffer));
+    static size_t allocated_space = 10;
+    char *buffer = malloc(allocated_space * sizeof(*buffer));
     bool valid_input = false;
     do {
         printf("How would you like to sort your tasks? [date/urgency]\n");
-        if  (fgets(buffer, sizeof buffer, stdin) != NULL) {
+        if  (fgets(buffer, allocated_space, stdin) != NULL) {
             buffer[strcspn(buffer, "\n")] = '\0';
             my_to_lower(buffer);
         }
