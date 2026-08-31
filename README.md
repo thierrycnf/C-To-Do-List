@@ -4,4 +4,4 @@ A simple terminal based to do list software that allows users to:
   3. View all the tasks that have been created
 
 HOW TO RUN:
-  Simply open the To_Do_List executable and enjoy!
+  - Simply open the To_Do_List executable and enjoy!
