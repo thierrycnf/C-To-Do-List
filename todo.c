@@ -37,6 +37,10 @@ bool add_task(const Task task) {
 
 char *get_date_string(Task task){
     char *date = malloc((20) * sizeof *date);
+    if (date == NULL) {
+        printf("Failed to allocate memory for date string\n");
+        return NULL;
+    }
 
 
     snprintf(date, 20, "%zu/%zu/%zu", task.date.day, task.date.month, task.date.year);
@@ -130,6 +134,7 @@ bool get_urgent() {
 char *get_name() {
     char *buffer = malloc(100 * sizeof(*buffer));
      if (buffer == NULL) {
+        printf("Failed to allocate memory for name string\n");
         return NULL;
     }
 
@@ -256,7 +261,10 @@ size_t get_id() {
 }
 
 bool task_cmp(Task T1, Task T2) {
-    if (strcmp(get_date_string(T1), get_date_string(T2)) != 0) {
+    char *T1_date_string = get_date_string(T1);
+    char *T2_date_string = get_date_string(T2);
+
+    if (strcmp(*T1_date_string, *T2_date_string) != 0) {
         return false;
     }
 
@@ -416,6 +424,11 @@ void merge(size_t p, size_t q, size_t r) {
         .capacity = n2,
         .size = 0
     };
+
+    if (L.data == NULL || R.data == NULL) {
+        printf("Failed to allocate memory for subarrays\n");
+        return NULL;
+    }
 
 
     for (size_t i = 0; i < n1; i++) { //fill left sub array 
