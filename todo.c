@@ -6,7 +6,6 @@
 #include <string.h>
 #include <ctype.h>
 
-size_t next_task = 0;
 Task_List tasks = {
     .data = NULL,
     .size = 0,
@@ -124,6 +123,8 @@ bool get_urgent() {
     else if (strcmp(buffer, "no") == 0) {
         return false;
     }
+    return false;
+    
 }
 
 char *get_name() {

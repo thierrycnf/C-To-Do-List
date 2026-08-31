@@ -30,7 +30,6 @@ typedef struct {
 
 
 extern Task_List tasks;
-extern size_t next_task;
 
 
 
@@ -61,7 +60,7 @@ bool is_sorted_date();
 void merge_sort(size_t p, size_t r);
 void merge(size_t p, size_t q, size_t r);
 
-bool free_task_memory(size_t id);
+bool free_task_memory(Task task);
 bool free_task_list_memory();
 
 

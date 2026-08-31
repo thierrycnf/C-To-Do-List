@@ -16,7 +16,7 @@ int main(void) {
     };
     Task test_task = {
         .date = test_date,
-        .id = ++next_task,
+        .id = tasks.size + 1,
         .name = "do homework",
         .urgent = false,
         .test = true
@@ -48,7 +48,7 @@ int main(void) {
                 task.name = get_name();
                 
                 get_date(&task);
-                task.id =  ++next_task;
+                task.id =  tasks.size + 1;
                 
                 add_task(task);
             }
