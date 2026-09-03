@@ -39,7 +39,6 @@ bool sort_tasks_urgent();
 bool sort_tasks_date();
 void recalibrate_ids();
 
-char *get_date_string(Task task);
 size_t get_day(void);
 size_t get_month(void);
 size_t get_year(void);

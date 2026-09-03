@@ -35,18 +35,6 @@ bool add_task(const Task task) {
     return true;
 }
 
-char *get_date_string(Task task){
-    char *date = malloc((20) * sizeof *date);
-    if (date == NULL) {
-        printf("Failed to allocate memory for date string\n");
-        return NULL;
-    }
-
-
-    snprintf(date, 20, "%zu/%zu/%zu", task.date.day, task.date.month, task.date.year);
-
-    return date;
-}
 
 size_t get_day(void) {
     time_t now = time(NULL);
@@ -90,7 +78,10 @@ void print_task(Task task) {
         printf("URGENT | ");
     }
 
-    printf("%s | %s\n", task.name, task.date.date_string);
+    char date_string[16];
+    snprintf(date_string, sizeof date_string, "%zu/%zu/%zu", task.date.day, task.date.month, task.date.year);
+
+    printf("%s | %s\n", task.name, date_string);
 }
 
 void my_to_lower(char *string) {

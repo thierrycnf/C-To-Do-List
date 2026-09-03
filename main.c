@@ -8,7 +8,7 @@ int main(void) {
 
     tasks.data = malloc(1 * sizeof(Task));
     if (tasks.data == NULL) {
-
+        return EXIT_FAILURE;
     }
     Date test_date = {
         .day = 1,
@@ -87,6 +87,10 @@ int main(void) {
                     continue;
                 }
                 char *sort_choice = get_sort_choice();
+
+                if (*sort_choice == NULL) {
+                    continue;
+                }
                 if (strcmp(sort_choice, "urgency") == 0) {
                     sort_tasks_urgent();
                 }
