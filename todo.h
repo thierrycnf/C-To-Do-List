@@ -43,7 +43,7 @@ char *get_date_string(Task task);
 size_t get_day(void);
 size_t get_month(void);
 size_t get_year(void);
-void get_date(void);
+void get_date(Task *task);
 
 void print_task(Task task);
 bool get_urgent(void);

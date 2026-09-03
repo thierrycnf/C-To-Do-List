@@ -158,7 +158,7 @@ char *get_sort_choice(void) {
     char *buffer = malloc(allocated_space * sizeof(*buffer));
     if (buffer == NULL) {
         printf("Failed to allocated memory for buffer\n");
-        return;
+        return NULL;
     }
     bool valid_input = false;
     do {
