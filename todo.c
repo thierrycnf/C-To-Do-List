@@ -365,11 +365,15 @@ bool sort_tasks_urgent(void) {
 
 bool sort_tasks_date(void) {
     if (is_sorted_date() == false) {
-        merge_sort(0, tasks.size - 1);
-        recalibrate_ids();
-
-        printf("Successfully sorted tasks by date!\n");
-        return true;
+        if ( merge_sort(0, tasks.size - 1)) {
+            recalibrate_ids();
+            printf("Successfully sorted tasks by date!\n");
+            return true;
+        }
+        else {
+            printf("Sorting by date failed!\n");
+            return false;
+        }
     }
     printf("Tasks already sorted by date!\n");
     return false;    
@@ -398,17 +402,20 @@ bool free_task_list_memory(void) {
     return true;
 }
 
-void merge_sort(size_t p, size_t r) {
+bool merge_sort(size_t p, size_t r) {
     if (r > p) {
         size_t q = (p + r) / 2;
         merge_sort(p, q);
         merge_sort(q + 1, r);
-        merge(p, q, r);
+        if (!merge(p, q, r)) {
+            return false;
+        }
     } 
+    return true;
 }
 
 
-void merge(size_t p, size_t q, size_t r) {
+bool merge(size_t p, size_t q, size_t r) {
     size_t n1 = q - p + 1; //size of left subarray
     size_t n2 = r - q; //size of right subarray
 
@@ -424,14 +431,12 @@ void merge(size_t p, size_t q, size_t r) {
         .size = 0
     };
 
-    if (L.data == NULL && R.data != NULL) {
-        printf("Failed to allocate memory for left subarray\n");
+   if (L.data == NULL || R.data == NULL) {
+        free(L.data);
         free(R.data);
-        return;
-    }
-    else if (L.data != NULL && R.data == NULL) {
-        printf("Failed to allocate memory for right subarray\n");
-    }
+        printf("Failed to allocate memory to a subarray(s\n)");
+        return false;
+}
 
 
     for (size_t i = 0; i < n1; i++) { //fill left sub array 
@@ -475,4 +480,5 @@ void merge(size_t p, size_t q, size_t r) {
     }
     free(L.data);
     free(R.data);
+    return true;
 }   

@@ -57,8 +57,8 @@ bool task_cmp(Task T1, Task T2);
 bool is_sorted_urgent(void);
 bool is_sorted_date(void);
 
-void merge_sort(size_t p, size_t r);
-void merge(size_t p, size_t q, size_t r);
+bool merge_sort(size_t p, size_t r);
+bool merge(size_t p, size_t q, size_t r);
 
 bool free_task_memory(Task task);
 bool free_task_list_memory(void);
