@@ -68,7 +68,6 @@ void get_date(Task *task) {
     task -> date.month = get_month();
     task -> date.year = get_year();
     task -> date.total = (task -> date.year * 10000) + (task -> date.month * 100) + task -> date.day;
-    task -> date.date_string = get_date_string(*task);
 }
 
 
@@ -380,7 +379,6 @@ void recalibrate_ids(void) {
 bool free_task_memory(Task task) {
     if (task.test == false) {
         free(task.name);
-        free(task.date.date_string);
     }
     return true;
 }

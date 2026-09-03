@@ -9,7 +9,6 @@ typedef struct {
     size_t month;
     size_t year;
     size_t total;
-    char *date_string;
 } Date;
 
 typedef struct {

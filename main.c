@@ -15,7 +15,6 @@ int main(void) {
         .month = 1,
         .year = 2050,
         .total = (2050 * 10000) + (1 * 100) + 1,
-        .date_string = "1/1/2050"
     };
     Task test_task = {
         .date = test_date,
@@ -88,7 +87,7 @@ int main(void) {
                 }
                 char *sort_choice = get_sort_choice();
 
-                if (*sort_choice == NULL) {
+                if (sort_choice == NULL) {
                     continue;
                 }
                 if (strcmp(sort_choice, "urgency") == 0) {
