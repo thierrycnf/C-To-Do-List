@@ -218,7 +218,6 @@ bool remove_task(const size_t id) {
         }
         else {
             printf("Failed to reallocate memory.\n");
-            return false;
         }
     }
     printf("Successfully removed task!\n");
