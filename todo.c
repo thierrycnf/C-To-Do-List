@@ -150,6 +150,9 @@ bool get_urgent(void) {
     do {
         printf("Is this task urgent? [yes/no]\n");
         if  (fgets(buffer, sizeof buffer, stdin) != NULL) {
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             buffer[strcspn(buffer, "\n")] = '\0';
             my_to_lower(buffer);
         }
@@ -187,6 +190,9 @@ char *get_name(void) {
     printf("Enter task name\n");
 
     if (fgets(buffer, 100, stdin) == NULL) {
+        if (strchr(buffer, '\n') == NULL) {
+            clear_input_line();
+        }
         printf("Unable to read input\n");
         free(buffer);
         return NULL;
@@ -210,6 +216,9 @@ char *get_sort_choice(void) {
     do {
         printf("How would you like to sort your tasks? [date/urgency]\n");
         if  (fgets(buffer, allocated_space, stdin) != NULL) {
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             buffer[strcspn(buffer, "\n")] = '\0';
             my_to_lower(buffer);
         }
@@ -288,6 +297,9 @@ long get_id(void) {
     printf("Enter the task ID\n");
     do {
         if (fgets(buffer, sizeof buffer, stdin) != NULL) {
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             id = strtol(buffer, &end, 10);
 
             if (end == buffer) {
@@ -308,6 +320,13 @@ long get_id(void) {
     }
     while (valid_input == false);
     return id;
+}
+
+void clear_input_line(void) {
+    int c;
+
+    while ((c = getchar()) != '\n' && c != EOF) {
+    }
 }
 
 bool task_cmp(Task T1, Task T2) {
@@ -453,7 +472,7 @@ bool merge_sort(size_t p, size_t r) {
         return false;
        }
 
-       if ( merge_sort(q + 1, r)) {
+       if (!merge_sort(q + 1, r)) {
         return false;
        }
        

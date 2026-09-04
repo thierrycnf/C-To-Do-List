@@ -27,6 +27,9 @@ int main(void) {
             printf("E. End program\n");
             
         if (fgets(buffer, sizeof buffer, stdin) != NULL) {
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             buffer[strcspn(buffer, "\n")] = '\0';
             if (strcmp(buffer, "A") == 0) {
                 task.urgent = get_urgent();
