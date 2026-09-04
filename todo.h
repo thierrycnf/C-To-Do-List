@@ -16,7 +16,6 @@ typedef struct {
     char *name;
     bool urgent;
     Date date;
-    bool test;
 } Task;
 
 typedef struct {
@@ -33,6 +32,7 @@ extern Task_List tasks;
 
 
 bool add_task(const Task task);
+void add_test_tasks(void);
 bool remove_task(const size_t id);
 bool sort_tasks_urgent();
 bool sort_tasks_date();

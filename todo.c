@@ -35,6 +35,62 @@ bool add_task(const Task task) {
     return true;
 }
 
+void add_test_tasks(void) {
+    const size_t name_1_n = 20;
+    const size_t name_2_n = 30;
+    Date test_date_1 = {
+        .day = 1,
+        .month = 1,
+        .year = 2050,
+        .total = (2050 * 10000) + (1 * 100) + 1,
+    };
+
+    Date test_date_2 = {
+        .day = 22,
+        .month = 8,
+        .year = 2006,
+        .total = (2006 * 10000) + (8 * 100) + 22,
+    };
+    
+
+    char *name_1 = malloc(name_1_n);
+    if (name_1 == NULL) {
+            return;
+        }
+
+    snprintf(name_1, name_1_n, "%s", "do homework");
+    Task test_task_1 = {
+        .date = test_date_1,
+        .id = tasks.size + 1,
+        .name = name_1,
+        .urgent = false,
+    };
+    if (!add_task(test_task_1)) {
+        free_task_memory(test_task_1);
+        return;
+    }
+    
+        
+    
+    char *name_2 = malloc(name_2_n);
+    if (name_2 == NULL) {
+        return;
+        }
+
+    snprintf(name_2, name_2_n, "%s", "study for computing exam");
+    Task test_task_2 = {
+        .date = test_date_2,
+        .id = tasks.size + 1,
+        .name = name_2,
+        .urgent = true,
+    };
+    
+    if (!add_task(test_task_2)) {
+        free_task_memory(test_task_2);
+        return;
+    }
+    
+}
 
 size_t get_day(void) {
     time_t now = time(NULL);
@@ -376,9 +432,7 @@ void recalibrate_ids(void) {
 }
 
 bool free_task_memory(Task task) {
-    if (task.test == false) {
-        free(task.name);
-    }
+    free(task.name);
     return true;
 }
 

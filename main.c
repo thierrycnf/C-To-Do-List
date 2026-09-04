@@ -5,26 +5,12 @@
 
 
 int main(void) {
-
     tasks.data = malloc(1 * sizeof(Task));
+    add_test_tasks();
     if (tasks.data == NULL) {
         return EXIT_FAILURE;
     }
-    Date test_date = {
-        .day = 1,
-        .month = 1,
-        .year = 2050,
-        .total = (2050 * 10000) + (1 * 100) + 1,
-    };
-    Task test_task = {
-        .date = test_date,
-        .id = tasks.size + 1,
-        .name = "do homework",
-        .urgent = false,
-        .test = true
-    };
 
-    add_task(test_task);
     char buffer[3];
     Task task;
 
@@ -50,7 +36,6 @@ int main(void) {
             if (strcmp(buffer, "A") == 0) {
                 task.urgent = get_urgent();
                 task.name = get_name();
-                task.test = false;
                 if (task.name == NULL) {
                     goto start;
                 }
