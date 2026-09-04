@@ -63,7 +63,7 @@ int main(void) {
                     printf("You have no tasks!\n");
                     continue;
                 }
-                size_t delete_id = get_id();
+                long delete_id = get_id();
                 remove_task(delete_id);
             }
             else if (strcmp(buffer, "D") == 0) {

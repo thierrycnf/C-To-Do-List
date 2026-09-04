@@ -155,7 +155,7 @@ bool get_urgent(void) {
         }
         else {
             printf("Unable to read input\n");
-            continue;
+            exit(EXIT_FAILURE);
         }
 
         if (strcmp(buffer, "yes") != 0 && strcmp(buffer, "no") != 0) {
@@ -215,7 +215,7 @@ char *get_sort_choice(void) {
         }
         else {
             printf("Unable to read input\n");
-            continue;
+            exit(EXIT_FAILURE);
         }
 
         if (strcmp(buffer, "date") != 0 && strcmp(buffer, "urgency") != 0) {
@@ -262,9 +262,7 @@ bool remove_task(const long id) {
         if (new_capacity == 0) {
             new_capacity = 1;
         }
-        Task *temp = realloc(
-        tasks.data,
-        new_capacity * sizeof(Task)
+        Task *temp = realloc(tasks.data, new_capacity * sizeof(Task)
             
     );
 
@@ -303,6 +301,10 @@ long get_id(void) {
             }
             
         }
+        else {
+            printf("Unable to read input\n");
+            exit(EXIT_FAILURE);
+    }
     }
     while (valid_input == false);
     return id;
@@ -447,8 +449,14 @@ bool free_task_list_memory(void) {
 bool merge_sort(size_t p, size_t r) {
     if (r > p) {
         size_t q = (p + r) / 2;
-        merge_sort(p, q);
-        merge_sort(q + 1, r);
+       if (!merge_sort(p, q)) {
+        return false;
+       }
+
+       if ( merge_sort(q + 1, r)) {
+        return false;
+       }
+       
         if (!merge(p, q, r)) {
             return false;
         }
