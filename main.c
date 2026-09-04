@@ -15,12 +15,6 @@ int main(void) {
     char buffer[3];
     Task task;
 
-    // Task task1 = {
-    //     .id = ++next_task,
-    //     .name = "Take out the bin",
-    //     .urgent = true,
-    //     .date = get_date()
-    // };
 
     do {
         start:
