@@ -6,10 +6,11 @@
 
 int main(void) {
     tasks.data = malloc(1 * sizeof(Task));
-    add_test_tasks();
     if (tasks.data == NULL) {
         return EXIT_FAILURE;
     }
+    add_test_tasks();
+    
 
     char buffer[3];
     Task task;
@@ -93,6 +94,9 @@ int main(void) {
 
 
         
+    }
+    else {
+        break;
     }
     printf("\n");
 }
