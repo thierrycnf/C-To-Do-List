@@ -84,7 +84,7 @@ void add_test_tasks(void) {
         .name = name_2,
         .urgent = true,
     };
-    
+
     if (!add_task(test_task_2)) {
         free_task_memory(test_task_2);
         return;
@@ -232,13 +232,13 @@ char *get_sort_choice(void) {
 
 }
 
-bool remove_task(const size_t id) {
+bool remove_task(const long id) {
     if (tasks.size == 0) {
         printf("You have no tasks!\n");
         return false;
     }
 
-    else if (id > tasks.size) {
+    else if (id > (long)tasks.size) {
         printf("This task does not exist!\n");
         return false;
     }
@@ -281,10 +281,10 @@ bool remove_task(const size_t id) {
     }
         
 
-size_t get_id(void) {
+long get_id(void) {
     char buffer[32];
     char *end;
-    size_t id;
+    long id;
     bool valid_input = false;
     
     printf("Enter the task ID\n");

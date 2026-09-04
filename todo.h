@@ -33,7 +33,7 @@ extern Task_List tasks;
 
 bool add_task(const Task task);
 void add_test_tasks(void);
-bool remove_task(const size_t id);
+bool remove_task(const long id);
 bool sort_tasks_urgent();
 bool sort_tasks_date();
 void recalibrate_ids();
@@ -46,7 +46,7 @@ void get_date(Task *task);
 void print_task(Task task);
 bool get_urgent(void);
 char *get_name(void);
-size_t get_id(void);
+long get_id(void);
 char *get_sort_choice(void);
 
 bool task_list_cmp(Task_List A1, Task_List A2);
