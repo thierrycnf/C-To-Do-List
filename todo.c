@@ -12,6 +12,18 @@ Task_List tasks = {
     .capacity = 1
 };
 
+bool initialise_task_list(void) {
+    if (tasks.data != NULL) {
+        return false; //this function has already been called
+    }
+
+    tasks.data = malloc(tasks.capacity * sizeof(Task));
+    if (tasks.data == NULL) {
+        return false;
+    }
+
+    return true;
+}
 bool add_task(const Task task) {
     if (tasks.size + 1 > tasks.capacity) {
         size_t new_capacity = tasks.capacity * 2;
@@ -158,6 +170,7 @@ bool get_urgent(void) {
         }
         else {
             printf("Unable to read input\n");
+            free_task_list_memory();
             exit(EXIT_FAILURE);
         }
 
@@ -190,14 +203,14 @@ char *get_name(void) {
     printf("Enter task name\n");
 
     if (fgets(buffer, 100, stdin) == NULL) {
-        if (strchr(buffer, '\n') == NULL) {
-            clear_input_line();
-        }
         printf("Unable to read input\n");
         free(buffer);
         return NULL;
     }
 
+    if (strchr(buffer, '\n') == NULL) {
+            clear_input_line();
+        }
     buffer[strcspn(buffer, "\n")] = '\0';
 
     return buffer;
@@ -224,6 +237,7 @@ char *get_sort_choice(void) {
         }
         else {
             printf("Unable to read input\n");
+            free_task_list_memory();
             exit(EXIT_FAILURE);
         }
 

@@ -5,10 +5,10 @@
 
 
 int main(void) {
-    tasks.data = malloc(1 * sizeof(Task));
-    if (tasks.data == NULL) {
+    if (!initialise_task_list()) {
         return EXIT_FAILURE;
     }
+
     add_test_tasks();
     
 
@@ -100,7 +100,7 @@ int main(void) {
     while (true); 
     free_task_list_memory();
 
-    return 0;   
+    return EXIT_SUCCESS;   
 }
     
 

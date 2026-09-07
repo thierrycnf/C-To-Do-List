@@ -30,7 +30,7 @@ typedef struct {
 extern Task_List tasks;
 
 
-
+bool initialise_task_list(void);
 bool add_task(const Task task);
 void add_test_tasks(void);
 bool remove_task(const long id);
