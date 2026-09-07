@@ -439,7 +439,7 @@ bool sort_tasks_date(void) {
         }
     }
     printf("Tasks already sorted by date!\n");
-    return false;    
+    return true;    
 
 } 
 
