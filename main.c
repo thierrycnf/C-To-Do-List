@@ -75,10 +75,16 @@ int main(void) {
                     continue;
                 }
                 if (strcmp(sort_choice, "urgency") == 0) {
-                    sort_tasks_urgent();
+                    if (!sort_tasks_urgent()) {
+                        free(sort_choice);
+                        goto start;
+                    }
                 }
                 else if (strcmp(sort_choice, "date") == 0) {
-                    sort_tasks_date();
+                    if (!sort_tasks_date()) {
+                        free(sort_choice);
+                        goto start;
+                    }
                 }
                 free(sort_choice);
                 

@@ -395,6 +395,10 @@ bool sort_tasks_urgent(void) {
     }
 
     Task *sorted_tasks = malloc(tasks.size * sizeof(*sorted_tasks));
+    if (sorted_tasks == NULL) {
+        printf("Unable to allocate memory for sorted tasks list!\n");
+        return false;
+    }
     size_t n = 0;
 
     for (size_t i = 0; i < tasks.size; i++) {
@@ -458,6 +462,9 @@ bool free_task_list_memory(void) {
         free_task_memory(tasks.data[i]);
     }
     free(tasks.data);
+    tasks.data = NULL;
+    tasks.size = 0;
+    tasks.capacity = 1;
     return true;
 }
 
