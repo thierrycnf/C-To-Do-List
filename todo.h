@@ -38,10 +38,8 @@ bool sort_tasks_urgent(void);
 bool sort_tasks_date(void);
 void recalibrate_ids(void);
 
-size_t get_day(void);
-size_t get_month(void);
-size_t get_year(void);
-void get_date(Task *task);
+
+void set_date(Task *task);
 
 void print_task(Task task);
 bool get_urgent(void);

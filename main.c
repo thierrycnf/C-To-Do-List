@@ -38,7 +38,7 @@ int main(void) {
                     goto start;
                 }
                 
-                get_date(&task);
+                set_date(&task);
                 task.id =  tasks.size + 1;
                 
                 if (!add_task(task)) {

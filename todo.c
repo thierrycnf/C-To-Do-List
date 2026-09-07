@@ -104,37 +104,22 @@ void add_test_tasks(void) {
     
 }
 
-size_t get_day(void) {
+
+void set_date(Task *task) {
     time_t now = time(NULL);
     struct tm *local = localtime(&now);
 
-    size_t day   = (size_t)local->tm_mday;
-
-    return day;
-}
-
-size_t get_month(void) {
-    time_t now = time(NULL);
-    struct tm *local = localtime(&now);
-
-    size_t month = (size_t)(local->tm_mon + 1);
-
-    return month;
-}
-
-size_t get_year(void) {
-    time_t now = time(NULL);
-    struct tm *local = localtime(&now);
-
-    size_t year  = (size_t)(local->tm_year + 1900);
-
-    return year;
-}
-
-void get_date(Task *task) {
-    task -> date.day = get_day();
-    task -> date.month = get_month();
-    task -> date.year = get_year();
+    if (local == NULL) {
+        task -> date.day = 0;
+        task -> date.month = 0;
+        task -> date.year = 0;
+        task -> date.total = 0;
+        return;
+    }
+    
+    task -> date.day = (size_t)local->tm_mday;
+    task -> date.month = (size_t)(local->tm_mon + 1);
+    task -> date.year = (size_t)(local->tm_year + 1900);
     task -> date.total = (task -> date.year * 10000) + (task -> date.month * 100) + task -> date.day;
 }
 
