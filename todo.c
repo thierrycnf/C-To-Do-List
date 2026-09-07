@@ -222,10 +222,8 @@ char *get_sort_choice(void) {
         }
         else {
             printf("Unable to read input\n");
+            free(buffer);
             free_task_list_memory();
-            if (strchr(buffer, '\n') == NULL) {
-                clear_input_line();
-             }
             exit(EXIT_FAILURE);
         }
 
@@ -259,7 +257,7 @@ bool remove_task(const long id) {
         return false;
     }
     
-    size_t index = id - 1;
+    size_t index = (size_t)(id - 1);
     Task task = tasks.data[index];
     free_task_memory(task);
     for (size_t i = index; i + 1< tasks.size; i++) {
@@ -396,7 +394,7 @@ bool sort_tasks_urgent(void) {
         return true;
     }
 
-    Task sorted_tasks[tasks.size];
+    Task *sorted_tasks = malloc(tasks.size * sizeof(*sorted_tasks));
     size_t n = 0;
 
     for (size_t i = 0; i < tasks.size; i++) {
@@ -416,6 +414,7 @@ bool sort_tasks_urgent(void) {
    }
 
     recalibrate_ids();
+    free(sorted_tasks);
     
     if (is_sorted_urgent()) {
         printf("Successfully sorted tasks by urgency!\n");
