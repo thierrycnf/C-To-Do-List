@@ -153,7 +153,7 @@ void print_task(Task task) {
 
 void my_to_lower(char *string) {
     for (size_t i = 0; string[i] != '\0'; i++) {
-        string[i] = tolower(string[i]);
+        string[i] = (char)tolower((unsigned char)string[i]);
     }
 }
 bool get_urgent(void) {
@@ -238,6 +238,9 @@ char *get_sort_choice(void) {
         else {
             printf("Unable to read input\n");
             free_task_list_memory();
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             exit(EXIT_FAILURE);
         }
 
