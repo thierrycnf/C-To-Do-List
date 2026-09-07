@@ -393,7 +393,7 @@ bool is_sorted_date(void) {
 bool sort_tasks_urgent(void) {
     if (is_sorted_urgent()) {
         printf("Task list is already sorted!\n");
-        return false;
+        return true;
     }
 
     Task sorted_tasks[tasks.size];
