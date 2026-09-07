@@ -396,39 +396,34 @@ bool sort_tasks_urgent(void) {
         return false;
     }
 
-
-    Task urgent_tasks[tasks.size];
-    Task non_urgent_tasks[tasks.size];
-    
-    size_t urgent_tasks_n = 0;
-    size_t non_urgent_tasks_n = 0;
-
-    size_t j = 0;
-    size_t k = 0;
-
+    Task sorted_tasks[tasks.size];
+    size_t n = 0;
 
     for (size_t i = 0; i < tasks.size; i++) {
         if (tasks.data[i].urgent) {
-            urgent_tasks[urgent_tasks_n++] = tasks.data[i];
+            sorted_tasks[n++] = tasks.data[i];
         }
-        else {
-            non_urgent_tasks[non_urgent_tasks_n++] = tasks.data[i];
+    }
+
+    for (size_t i = 0; i < tasks.size; i++) {
+        if (!(tasks.data[i].urgent)) {
+            sorted_tasks[n++] = tasks.data[i];
         }
     }
     
-    for (size_t i = 0; i < urgent_tasks_n; i++) {
-        tasks.data[i] = urgent_tasks[j++];
-    }
-
-    for (size_t i = urgent_tasks_n; i < tasks.size; i++) {
-        tasks.data[i] = non_urgent_tasks[k++];
-    }
+   for (size_t i = 0; i < tasks.size; i++) {
+        tasks.data[i] = sorted_tasks[i];
+   }
 
     recalibrate_ids();
-
-    printf("Successfully sorted tasks!\n");
-
-    return true;
+    
+    if (is_sorted_urgent()) {
+        printf("Successfully sorted tasks by urgency!\n");
+        return true;
+    }
+    
+    printf("Unsuccessfully sorted tasks by urgency!\n");
+    return false;
 }
 
 bool sort_tasks_date(void) {
