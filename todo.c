@@ -315,6 +315,7 @@ long get_id(void) {
         }
         else {
             printf("Unable to read input\n");
+            free_task_list_memory();
             exit(EXIT_FAILURE);
     }
     }
@@ -448,7 +449,7 @@ bool sort_tasks_date(void) {
 
 void recalibrate_ids(void) {
     for (size_t i = 0; i < tasks.size; i++) {
-        tasks.data[i].id = i + 1;;
+        tasks.data[i].id = i + 1;
     }
 }
 
@@ -506,7 +507,7 @@ bool merge(size_t p, size_t q, size_t r) {
    if (L.data == NULL || R.data == NULL) {
         free(L.data);
         free(R.data);
-        printf("Failed to allocate memory to a subarray(s\n)");
+        printf("Failed to allocate memory subarray(s)\n");
         return false;
 }
 
