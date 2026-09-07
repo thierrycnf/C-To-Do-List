@@ -60,5 +60,6 @@ bool merge(size_t p, size_t q, size_t r);
 bool free_task_memory(Task task);
 bool free_task_list_memory(void);
 
+void my_to_lower(char *string);
 
 #endif

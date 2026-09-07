@@ -31,7 +31,8 @@ int main(void) {
                 clear_input_line();
              }
             buffer[strcspn(buffer, "\n")] = '\0';
-            if (strcmp(buffer, "A") == 0) {
+            my_to_lower(buffer);
+            if (strcmp(buffer, "a") == 0) {
                 task.urgent = get_urgent();
                 task.name = get_name();
                 if (task.name == NULL) {
@@ -45,7 +46,7 @@ int main(void) {
                     free_task_memory(task);
                 }
             }
-            else if (strcmp(buffer, "B") == 0) {
+            else if (strcmp(buffer, "b") == 0) {
                 if (tasks.size == 0) {
                     printf("You have no tasks!\n");
                 }
@@ -55,7 +56,7 @@ int main(void) {
                     }
             }
             }
-            else if (strcmp(buffer, "C") == 0) {
+            else if (strcmp(buffer, "c") == 0) {
                 if (tasks.size == 0) {
                     printf("You have no tasks!\n");
                     continue;
@@ -63,7 +64,7 @@ int main(void) {
                 long delete_id = get_id();
                 remove_task(delete_id);
             }
-            else if (strcmp(buffer, "D") == 0) {
+            else if (strcmp(buffer, "d") == 0) {
                 if (tasks.size == 0) {
                     printf("You have no tasks to sort!\n");
                     continue;
@@ -82,7 +83,7 @@ int main(void) {
                 free(sort_choice);
                 
             }
-            else if (strcmp(buffer, "E") == 0) {
+            else if (strcmp(buffer, "e") == 0) {
                 break;
         }   
             else{
