@@ -6,13 +6,24 @@
 #include <string.h>
 #include <ctype.h>
 
-size_t next_task = 0;
 Task_List tasks = {
     .data = NULL,
     .size = 0,
     .capacity = 1
 };
 
+bool initialise_task_list(void) {
+    if (tasks.data != NULL) {
+        return false; //this function has already been called
+    }
+
+    tasks.data = malloc(tasks.capacity * sizeof(Task));
+    if (tasks.data == NULL) {
+        return false;
+    }
+
+    return true;
+}
 bool add_task(const Task task) {
     if (tasks.size + 1 > tasks.capacity) {
         size_t new_capacity = tasks.capacity * 2;
@@ -36,48 +47,80 @@ bool add_task(const Task task) {
     return true;
 }
 
-char *get_date_string(Task task){
-    char *date = malloc((20) * sizeof *date);
+void add_test_tasks(void) {
+    const size_t name_1_n = 20;
+    const size_t name_2_n = 30;
+    Date test_date_1 = {
+        .day = 1,
+        .month = 1,
+        .year = 2050,
+        .total = (2050 * 10000) + (1 * 100) + 1,
+    };
 
+    Date test_date_2 = {
+        .day = 22,
+        .month = 8,
+        .year = 2006,
+        .total = (2006 * 10000) + (8 * 100) + 22,
+    };
+    
 
-    snprintf(date, 20, "%zu/%zu/%zu", task.date.day, task.date.month, task.date.year);
+    char *name_1 = malloc(name_1_n);
+    if (name_1 == NULL) {
+            return;
+        }
 
-    return date;
+    snprintf(name_1, name_1_n, "%s", "do homework");
+    Task test_task_1 = {
+        .date = test_date_1,
+        .id = tasks.size + 1,
+        .name = name_1,
+        .urgent = false,
+    };
+    if (!add_task(test_task_1)) {
+        free_task_memory(test_task_1);
+        return;
+    }
+    
+        
+    
+    char *name_2 = malloc(name_2_n);
+    if (name_2 == NULL) {
+        return;
+        }
+
+    snprintf(name_2, name_2_n, "%s", "study for computing exam");
+    Task test_task_2 = {
+        .date = test_date_2,
+        .id = tasks.size + 1,
+        .name = name_2,
+        .urgent = true,
+    };
+
+    if (!add_task(test_task_2)) {
+        free_task_memory(test_task_2);
+        return;
+    }
+    
 }
 
-size_t get_day() {
+
+void set_date(Task *task) {
     time_t now = time(NULL);
     struct tm *local = localtime(&now);
 
-    size_t day   = (size_t)local->tm_mday;
-
-    return day;
-}
-
-size_t get_month() {
-    time_t now = time(NULL);
-    struct tm *local = localtime(&now);
-
-    size_t month = (size_t)(local->tm_mon + 1);
-
-    return month;
-}
-
-size_t get_year() {
-    time_t now = time(NULL);
-    struct tm *local = localtime(&now);
-
-    size_t year  = (size_t)(local->tm_year + 1900);
-
-    return year;
-}
-
-void get_date(Task *task) {
-    task -> date.day = get_day();
-    task -> date.month = get_month();
-    task -> date.year = get_year();
+    if (local == NULL) {
+        task -> date.day = 0;
+        task -> date.month = 0;
+        task -> date.year = 0;
+        task -> date.total = 0;
+        return;
+    }
+    
+    task -> date.day = (size_t)local->tm_mday;
+    task -> date.month = (size_t)(local->tm_mon + 1);
+    task -> date.year = (size_t)(local->tm_year + 1900);
     task -> date.total = (task -> date.year * 10000) + (task -> date.month * 100) + task -> date.day;
-    task -> date.date_string = get_date_string(*task);
 }
 
 
@@ -87,26 +130,33 @@ void print_task(Task task) {
         printf("URGENT | ");
     }
 
-    printf("%s | %s\n", task.name, task.date.date_string);
+    char date_string[16];
+    snprintf(date_string, sizeof date_string, "%zu/%zu/%zu", task.date.day, task.date.month, task.date.year);
+
+    printf("%s | %s\n", task.name, date_string);
 }
 
 void my_to_lower(char *string) {
     for (size_t i = 0; string[i] != '\0'; i++) {
-        string[i] = tolower(string[i]);
+        string[i] = (char)tolower((unsigned char)string[i]);
     }
 }
-bool get_urgent() {
+bool get_urgent(void) {
     char buffer[8];
     bool valid_input = false;
     do {
         printf("Is this task urgent? [yes/no]\n");
         if  (fgets(buffer, sizeof buffer, stdin) != NULL) {
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             buffer[strcspn(buffer, "\n")] = '\0';
             my_to_lower(buffer);
         }
         else {
             printf("Unable to read input\n");
-            continue;
+            free_task_list_memory();
+            exit(EXIT_FAILURE);
         }
 
         if (strcmp(buffer, "yes") != 0 && strcmp(buffer, "no") != 0) {
@@ -124,11 +174,14 @@ bool get_urgent() {
     else if (strcmp(buffer, "no") == 0) {
         return false;
     }
+    return false;
+    
 }
 
-char *get_name() {
+char *get_name(void) {
     char *buffer = malloc(100 * sizeof(*buffer));
      if (buffer == NULL) {
+        printf("Failed to allocate memory for name string\n");
         return NULL;
     }
 
@@ -140,6 +193,9 @@ char *get_name() {
         return NULL;
     }
 
+    if (strchr(buffer, '\n') == NULL) {
+            clear_input_line();
+        }
     buffer[strcspn(buffer, "\n")] = '\0';
 
     return buffer;
@@ -147,18 +203,28 @@ char *get_name() {
     
 }
 
-char *get_sort_choice() {
-    char *buffer = malloc(10 * sizeof(*buffer));
+char *get_sort_choice(void) {
+    static size_t allocated_space = 10;
+    char *buffer = malloc(allocated_space * sizeof(*buffer));
+    if (buffer == NULL) {
+        printf("Failed to allocated memory for buffer\n");
+        return NULL;
+    }
     bool valid_input = false;
     do {
         printf("How would you like to sort your tasks? [date/urgency]\n");
-        if  (fgets(buffer, sizeof buffer, stdin) != NULL) {
+        if  (fgets(buffer, allocated_space, stdin) != NULL) {
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             buffer[strcspn(buffer, "\n")] = '\0';
             my_to_lower(buffer);
         }
         else {
             printf("Unable to read input\n");
-            continue;
+            free(buffer);
+            free_task_list_memory();
+            exit(EXIT_FAILURE);
         }
 
         if (strcmp(buffer, "date") != 0 && strcmp(buffer, "urgency") != 0) {
@@ -175,13 +241,13 @@ char *get_sort_choice() {
 
 }
 
-bool remove_task(const size_t id) {
+bool remove_task(const long id) {
     if (tasks.size == 0) {
         printf("You have no tasks!\n");
         return false;
     }
 
-    else if (id > tasks.size) {
+    else if (id > (long)tasks.size) {
         printf("This task does not exist!\n");
         return false;
     }
@@ -190,20 +256,22 @@ bool remove_task(const size_t id) {
         printf("Please enter a valid id\n");
         return false;
     }
-    size_t index = id - 1;
+    
+    size_t index = (size_t)(id - 1);
+    Task task = tasks.data[index];
+    free_task_memory(task);
     for (size_t i = index; i + 1< tasks.size; i++) {
         tasks.data[i] = tasks.data[i + 1];
         tasks.data[i].id -= 1;
     }
 
-    if (tasks.size - 1 <= tasks.capacity / 4) {
+
+    if (--tasks.size <= tasks.capacity / 4) {
         size_t new_capacity = tasks.capacity / 2;
         if (new_capacity == 0) {
             new_capacity = 1;
         }
-        Task *temp = realloc(
-        tasks.data,
-        new_capacity * sizeof(Task)
+        Task *temp = realloc(tasks.data, new_capacity * sizeof(Task)
             
     );
 
@@ -213,24 +281,25 @@ bool remove_task(const size_t id) {
         }
         else {
             printf("Failed to reallocate memory.\n");
-            return false;
         }
     }
-    tasks.size--;
     printf("Successfully removed task!\n");
     return true;
     }
         
 
-size_t get_id() {
+long get_id(void) {
     char buffer[32];
     char *end;
-    size_t id;
+    long id;
     bool valid_input = false;
     
     printf("Enter the task ID\n");
     do {
         if (fgets(buffer, sizeof buffer, stdin) != NULL) {
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             id = strtol(buffer, &end, 10);
 
             if (end == buffer) {
@@ -244,13 +313,27 @@ size_t get_id() {
             }
             
         }
+        else {
+            printf("Unable to read input\n");
+            free_task_list_memory();
+            exit(EXIT_FAILURE);
+    }
     }
     while (valid_input == false);
     return id;
 }
 
+void clear_input_line(void) {
+    int c;
+
+    while ((c = getchar()) != '\n' && c != EOF) {
+    }
+}
+
 bool task_cmp(Task T1, Task T2) {
-    if (strcmp(get_date_string(T1), get_date_string(T2)) != 0) {
+
+
+    if (T1.date.total != T2.date.total) {
         return false;
     }
 
@@ -258,9 +341,6 @@ bool task_cmp(Task T1, Task T2) {
         return false;
     }
 
-    if (strcmp(T1.name, T2.name) != 0) {
-        return false;
-    }
 
     if (T1.id != T2.id) {
         return false;
@@ -286,7 +366,7 @@ bool task_list_cmp(Task_List A1, Task_List A2) {
     return true;
 }
 
-bool is_sorted_urgent() {
+bool is_sorted_urgent(void) {
     bool encountered_non_urgent = false;
     for (size_t i = 0; i < tasks.size; i++) {
         if (tasks.data[i].urgent == false) {
@@ -301,7 +381,7 @@ bool is_sorted_urgent() {
     return true;
 }
 
-bool is_sorted_date() {
+bool is_sorted_date(void) {
     for (size_t i = 1; i < tasks.size; i++) {
         if (tasks.data[i].date.total < tasks.data[i - 1].date.total) {
             return false;
@@ -309,92 +389,106 @@ bool is_sorted_date() {
     }
     return true;
 }
-bool sort_tasks_urgent() {
+bool sort_tasks_urgent(void) {
     if (is_sorted_urgent()) {
         printf("Task list is already sorted!\n");
-        return false;
+        return true;
     }
 
-
-    Task urgent_tasks[tasks.size];
-    Task non_urgent_tasks[tasks.size];
-    
-    size_t urgent_tasks_n = 0;
-    size_t non_urgent_tasks_n = 0;
-
-    size_t j = 0;
-    size_t k = 0;
-
+    Task *sorted_tasks = malloc(tasks.size * sizeof(*sorted_tasks));
+    if (sorted_tasks == NULL) {
+        printf("Unable to allocate memory for sorted tasks list!\n");
+        return false;
+    }
+    size_t n = 0;
 
     for (size_t i = 0; i < tasks.size; i++) {
         if (tasks.data[i].urgent) {
-            urgent_tasks[urgent_tasks_n++] = tasks.data[i];
+            sorted_tasks[n++] = tasks.data[i];
         }
-        else {
-            non_urgent_tasks[non_urgent_tasks_n++] = tasks.data[i];
+    }
+
+    for (size_t i = 0; i < tasks.size; i++) {
+        if (!(tasks.data[i].urgent)) {
+            sorted_tasks[n++] = tasks.data[i];
         }
     }
     
-    for (size_t i = 0; i < urgent_tasks_n; i++) {
-        tasks.data[i] = urgent_tasks[j++];
-    }
-
-    for (size_t i = urgent_tasks_n; i < tasks.size; i++) {
-        tasks.data[i] = non_urgent_tasks[k++];
-    }
+   for (size_t i = 0; i < tasks.size; i++) {
+        tasks.data[i] = sorted_tasks[i];
+   }
 
     recalibrate_ids();
-
-    printf("Successfully sorted tasks!\n");
-
-    return true;
-}
-
-bool sort_tasks_date() {
-    if (is_sorted_date() == false) {
-        merge_sort(0, tasks.size - 1);
-        recalibrate_ids();
-
-        printf("Successfully sorted tasks by date!\n");
+    free(sorted_tasks);
+    
+    if (is_sorted_urgent()) {
+        printf("Successfully sorted tasks by urgency!\n");
         return true;
     }
+    
+    printf("Unsuccessfully sorted tasks by urgency!\n");
+    return false;
+}
+
+bool sort_tasks_date(void) {
+    if (is_sorted_date() == false) {
+        if ( merge_sort(0, tasks.size - 1)) {
+            recalibrate_ids();
+            printf("Successfully sorted tasks by date!\n");
+            return true;
+        }
+        else {
+            printf("Sorting by date failed!\n");
+            return false;
+        }
+    }
     printf("Tasks already sorted by date!\n");
-    return false;    
+    return true;    
 
 } 
 
-void recalibrate_ids() {
+void recalibrate_ids(void) {
     for (size_t i = 0; i < tasks.size; i++) {
-        tasks.data[i].id = i + 1;;
+        tasks.data[i].id = i + 1;
     }
 }
 
-bool free_task_memory(size_t id) {
-    size_t i = id - 1;
-    free(tasks.data[i].name);
-    free(tasks.data[i].date.date_string);
+bool free_task_memory(Task task) {
+    free(task.name);
     return true;
 }
 
-bool free_task_list_memory() {
+bool free_task_list_memory(void) {
     for (size_t i = 0; i < tasks.size; i++) {
-        free_task_memory(i + 1);
+        free_task_memory(tasks.data[i]);
     }
     free(tasks.data);
+    tasks.data = NULL;
+    tasks.size = 0;
+    tasks.capacity = 1;
     return true;
 }
 
-void merge_sort(size_t p, size_t r) {
+bool merge_sort(size_t p, size_t r) {
     if (r > p) {
         size_t q = (p + r) / 2;
-        merge_sort(p, q);
-        merge_sort(q + 1, r);
-        merge(p, q, r);
+       if (!merge_sort(p, q)) {
+        return false;
+       }
+
+       if (!merge_sort(q + 1, r)) {
+        return false;
+       }
+       
+        if (!merge(p, q, r)) {
+            return false;
+        }
     } 
+    return true;
 }
 
 
-void merge(size_t p, size_t q, size_t r) {
+bool merge(size_t p, size_t q, size_t r) {
     size_t n1 = q - p + 1; //size of left subarray
     size_t n2 = r - q; //size of right subarray
 
@@ -409,6 +503,13 @@ void merge(size_t p, size_t q, size_t r) {
         .capacity = n2,
         .size = 0
     };
+
+   if (L.data == NULL || R.data == NULL) {
+        free(L.data);
+        free(R.data);
+        printf("Failed to allocate memory subarray(s)\n");
+        return false;
+}
 
 
     for (size_t i = 0; i < n1; i++) { //fill left sub array 
@@ -452,4 +553,5 @@ void merge(size_t p, size_t q, size_t r) {
     }
     free(L.data);
     free(R.data);
+    return true;
 }   

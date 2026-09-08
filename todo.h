@@ -9,7 +9,6 @@ typedef struct {
     size_t month;
     size_t year;
     size_t total;
-    char *date_string;
 } Date;
 
 typedef struct {
@@ -29,39 +28,38 @@ typedef struct {
 
 
 extern Task_List tasks;
-extern size_t next_task;
 
 
-
+bool initialise_task_list(void);
 bool add_task(const Task task);
-bool remove_task(const size_t id);
-bool sort_tasks_urgent();
-bool sort_tasks_date();
-void recalibrate_ids();
+void add_test_tasks(void);
+bool remove_task(const long id);
+bool sort_tasks_urgent(void);
+bool sort_tasks_date(void);
+void recalibrate_ids(void);
 
-char *get_date_string();
-size_t get_day();
-size_t get_month();
-size_t get_year();
-void get_date();
+
+void set_date(Task *task);
 
 void print_task(Task task);
-bool get_urgent();
-char *get_name();
-size_t get_id();
-char *get_sort_choice();
+bool get_urgent(void);
+char *get_name(void);
+long get_id(void);
+char *get_sort_choice(void);
+void clear_input_line(void);
 
 bool task_list_cmp(Task_List A1, Task_List A2);
 bool task_cmp(Task T1, Task T2);
 
-bool is_sorted_urgent();
-bool is_sorted_date();
+bool is_sorted_urgent(void);
+bool is_sorted_date(void);
 
-void merge_sort(size_t p, size_t r);
-void merge(size_t p, size_t q, size_t r);
+bool merge_sort(size_t p, size_t r);
+bool merge(size_t p, size_t q, size_t r);
 
-bool free_task_memory(size_t id);
-bool free_task_list_memory();
+bool free_task_memory(Task task);
+bool free_task_list_memory(void);
 
+void my_to_lower(char *string);
 
 #endif

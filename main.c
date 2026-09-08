@@ -5,53 +5,48 @@
 
 
 int main(void) {
+    if (!initialise_task_list()) {
+        return EXIT_FAILURE;
+    }
 
-    tasks.data = malloc(1 * sizeof(Task));
-    Date test_date = {
-        .day = 1,
-        .month = 1,
-        .year = 2050,
-        .total = (2050 * 10000) + (1 * 100) + 1,
-        .date_string = "1/1/2050"
-    };
-    Task test_task = {
-        .date = test_date,
-        .id = ++next_task,
-        .name = "do homework",
-        .urgent = false
-    };
+    add_test_tasks();
+    
 
-    add_task(test_task);
     char buffer[3];
     Task task;
 
-    // Task task1 = {
-    //     .id = ++next_task,
-    //     .name = "Take out the bin",
-    //     .urgent = true,
-    //     .date = get_date()
-    // };
 
     do {
-        printf("What would you like to do\n");
-        printf("A. Create a task\n");
-        printf("B. View your tasks\n");
-        printf("C. Delete a task\n");
-        printf("D. Sort tasks\n");
-        printf("E. End program\n");
+        start:
+
+            printf("What would you like to do\n");
+            printf("A. Create a task\n");
+            printf("B. View your tasks\n");
+            printf("C. Delete a task\n");
+            printf("D. Sort tasks\n");
+            printf("E. End program\n");
             
         if (fgets(buffer, sizeof buffer, stdin) != NULL) {
+            if (strchr(buffer, '\n') == NULL) {
+                clear_input_line();
+             }
             buffer[strcspn(buffer, "\n")] = '\0';
-            if (strcmp(buffer, "A") == 0) {
+            my_to_lower(buffer);
+            if (strcmp(buffer, "a") == 0) {
                 task.urgent = get_urgent();
                 task.name = get_name();
+                if (task.name == NULL) {
+                    goto start;
+                }
                 
-                get_date(&task);
-                task.id =  ++next_task;
+                set_date(&task);
+                task.id =  tasks.size + 1;
                 
-                add_task(task);
+                if (!add_task(task)) {
+                    free_task_memory(task);
+                }
             }
-            else if (strcmp(buffer, "B") == 0) {
+            else if (strcmp(buffer, "b") == 0) {
                 if (tasks.size == 0) {
                     printf("You have no tasks!\n");
                 }
@@ -61,29 +56,40 @@ int main(void) {
                     }
             }
             }
-            else if (strcmp(buffer, "C") == 0) {
+            else if (strcmp(buffer, "c") == 0) {
                 if (tasks.size == 0) {
                     printf("You have no tasks!\n");
                     continue;
                 }
-                size_t delete_id = get_id();
+                long delete_id = get_id();
                 remove_task(delete_id);
             }
-            else if (strcmp(buffer, "D") == 0) {
+            else if (strcmp(buffer, "d") == 0) {
                 if (tasks.size == 0) {
                     printf("You have no tasks to sort!\n");
                     continue;
                 }
                 char *sort_choice = get_sort_choice();
+
+                if (sort_choice == NULL) {
+                    continue;
+                }
                 if (strcmp(sort_choice, "urgency") == 0) {
-                    sort_tasks_urgent();
+                    if (!sort_tasks_urgent()) {
+                        free(sort_choice);
+                        goto start;
+                    }
                 }
                 else if (strcmp(sort_choice, "date") == 0) {
-                    sort_tasks_date();
+                    if (!sort_tasks_date()) {
+                        free(sort_choice);
+                        goto start;
+                    }
                 }
+                free(sort_choice);
                 
             }
-            else if (strcmp(buffer, "E") == 0) {
+            else if (strcmp(buffer, "e") == 0) {
                 break;
         }   
             else{
@@ -93,12 +99,15 @@ int main(void) {
 
         
     }
+    else {
+        break;
+    }
     printf("\n");
 }
     while (true); 
     free_task_list_memory();
 
-    return 0;   
+    return EXIT_SUCCESS;   
 }
     
 
