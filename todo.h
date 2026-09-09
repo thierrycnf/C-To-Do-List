@@ -61,5 +61,6 @@ bool free_task_memory(Task task);
 bool free_task_list_memory(void);
 
 void my_to_lower(char *string);
+char *task_to_json(const Task *task);
 
 #endif

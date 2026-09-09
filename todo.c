@@ -72,10 +72,10 @@ void add_test_tasks(void) {
 
     snprintf(name_1, name_1_n, "%s", "do homework");
     Task test_task_1 = {
-        .date = test_date_1,
         .id = tasks.size + 1,
         .name = name_1,
         .urgent = false,
+        .date = test_date_1,
     };
     if (!add_task(test_task_1)) {
         free_task_memory(test_task_1);
@@ -101,7 +101,12 @@ void add_test_tasks(void) {
         free_task_memory(test_task_2);
         return;
     }
-    
+
+    char *json = task_to_json(&test_task_1);
+    if (json != NULL) {
+        printf("%s\n", json);
+        free(json);
+    }
 }
 
 
@@ -255,6 +260,10 @@ bool remove_task(const long id) {
     else if (id <= 0) {
         printf("Please enter a valid id\n");
         return false;
+    }
+    
+    for (size_t i = 0; i < tasks.size; i++) {
+        print_task(tasks.data[i]);
     }
     
     size_t index = (size_t)(id - 1);
@@ -555,3 +564,39 @@ bool merge(size_t p, size_t q, size_t r) {
     free(R.data);
     return true;
 }   
+
+char *task_to_json(const Task *task) {
+    char *json = malloc(512 * sizeof(*json));
+    if (json == NULL) {
+        return NULL;
+    }
+
+    snprintf(
+        json, 512, 
+        "{"
+            "\"id\" : %zu,"
+            "\"name\" : \"%s\","
+            "\"urgent\" : %s,"
+            "\"date\": {"
+                "\"day\" : %zu,"
+                "\"month\" : %zu,"
+                "\"year\" : %zu"
+            "}"
+        "}",
+        task -> id, 
+        task-> name,
+        task -> urgent ? "true" : "false",
+        task -> date.day,
+        task -> date.month,
+        task -> date.year
+    );
+
+    size_t json_size = strlen(json) + 1;
+
+    char *temp = realloc(json, json_size);
+    if (temp != NULL) {
+        json = temp;
+    }
+
+    return json;
+}
