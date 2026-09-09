@@ -59,8 +59,8 @@ int main(void) {
                     printf("You have no tasks!\n");
                     continue;
                 }
-                long delete_id = get_id();
                 print_all_tasks();
+                long delete_id = get_id();
                 remove_task(delete_id);
             }
             else if (strcmp(buffer, "d") == 0) {
