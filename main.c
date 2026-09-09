@@ -51,9 +51,7 @@ int main(void) {
                     printf("You have no tasks!\n");
                 }
                 else {
-                    for (size_t i = 0; i < tasks.size; i++) {
-                        print_task(tasks.data[i]);
-                    }
+                    print_all_tasks();
             }
             }
             else if (strcmp(buffer, "c") == 0) {
@@ -62,6 +60,7 @@ int main(void) {
                     continue;
                 }
                 long delete_id = get_id();
+                print_all_tasks();
                 remove_task(delete_id);
             }
             else if (strcmp(buffer, "d") == 0) {

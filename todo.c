@@ -141,6 +141,12 @@ void print_task(Task task) {
     printf("%s | %s\n", task.name, date_string);
 }
 
+void print_all_tasks(void) {
+    for (size_t i = 0; i < tasks.size; i++) {
+        print_task(tasks.data[i]);
+    }
+}
+
 void my_to_lower(char *string) {
     for (size_t i = 0; string[i] != '\0'; i++) {
         string[i] = (char)tolower((unsigned char)string[i]);
@@ -260,10 +266,6 @@ bool remove_task(const long id) {
     else if (id <= 0) {
         printf("Please enter a valid id\n");
         return false;
-    }
-    
-    for (size_t i = 0; i < tasks.size; i++) {
-        print_task(tasks.data[i]);
     }
     
     size_t index = (size_t)(id - 1);

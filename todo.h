@@ -42,6 +42,7 @@ void recalibrate_ids(void);
 void set_date(Task *task);
 
 void print_task(Task task);
+void print_all_tasks(void);
 bool get_urgent(void);
 char *get_name(void);
 long get_id(void);
