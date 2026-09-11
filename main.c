@@ -10,7 +10,10 @@ int main(void) {
     }
 
     add_test_tasks();
-    
+    char *json = task_list_to_json();
+    if (json != NULL) {
+        printf("%s\n", json);
+    }
 
     char buffer[3];
     Task task;
@@ -108,7 +111,7 @@ int main(void) {
 
     return EXIT_SUCCESS;   
 }
-    
+
 
   
 

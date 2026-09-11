@@ -50,6 +50,7 @@ bool add_task(const Task task) {
 void add_test_tasks(void) {
     const size_t name_1_n = 20;
     const size_t name_2_n = 30;
+    const size_t name_3_n = 30;
     Date test_date_1 = {
         .day = 1,
         .month = 1,
@@ -64,6 +65,12 @@ void add_test_tasks(void) {
         .total = (2006 * 10000) + (8 * 100) + 22,
     };
     
+    Date test_date_3 = {
+        .day = 10,
+        .month = 9,
+        .year = 2025,
+        .total = (2025 * 10000) + (9 * 100) + 10,
+    };
 
     char *name_1 = malloc(name_1_n);
     if (name_1 == NULL) {
@@ -102,11 +109,23 @@ void add_test_tasks(void) {
         return;
     }
 
-    char *json = task_to_json(&test_task_1);
-    if (json != NULL) {
-        printf("%s\n", json);
-        free(json);
+    char *name_3 = malloc(name_3_n);
+    if (name_3 == NULL) {
+        return;
     }
+
+    snprintf(name_3, name_3_n, "%s", "get ready to go to club");
+    Task test_task_3 = {
+        .date = test_date_3,
+        .id = tasks.size + 1,
+        .name = name_3,
+        .urgent = false,
+    };
+    if (!add_task(test_task_3)) {
+        free_task_memory(test_task_3);
+        return;
+    }
+
 }
 
 
@@ -568,13 +587,14 @@ bool merge(size_t p, size_t q, size_t r) {
 }   
 
 char *task_to_json(const Task *task) {
-    char *json = malloc(512 * sizeof(*json));
+    size_t default_size = 1024;
+    char *json = malloc(default_size * sizeof(*json));
     if (json == NULL) {
         return NULL;
     }
 
     snprintf(
-        json, 512, 
+        json, default_size, 
         "{"
             "\"id\" : %zu,"
             "\"name\" : \"%s\","
@@ -595,9 +615,58 @@ char *task_to_json(const Task *task) {
 
     size_t json_size = strlen(json) + 1;
 
-    char *temp = realloc(json, json_size);
+    char *temp = realloc(json, json_size * sizeof(*json));
     if (temp != NULL) {
         json = temp;
+    }
+
+    return json;
+}
+
+char *task_list_to_json(void) {
+    if (tasks.size == 0) {
+        char json_literal[] = "{\"tasks\" : []}";
+        size_t json_size = sizeof(json_literal) + 1;
+        char *json = malloc(json_size);
+        snprintf(json, json_size, "%s", json_literal);
+        return json;
+    }
+    size_t default_size = (size_t)(snprintf(NULL, 0, "%s,", task_to_json(&tasks.data[0]))) + 30; //how many bytes are needed
+    //to store the first task's json data
+    size_t current_size = default_size;
+    char *json = malloc(current_size);
+    if (json == NULL) {
+        return NULL;
+    }   
+    size_t used = 0;
+    char *first_json = task_to_json(&tasks.data[0]);
+
+    used += snprintf(json + used, current_size - used, "{\"tasks\" : [\n%s,\n", first_json);
+    if (tasks.size == 1) {
+        used += snprintf(json + used, current_size - used, "]}");
+        return json;
+    }
+    free(first_json);
+
+    for (size_t i = 1; i < tasks.size; i++) {
+        char *task_json = task_to_json(&tasks.data[i]);
+        if (task_json == NULL) {
+            return NULL;
+        }
+
+        current_size += snprintf(NULL, 0, "%s", task_json) + 3;
+        char *temp = realloc(json, current_size);
+        if (temp != NULL) {
+            json = temp;
+        }
+
+        if (i == tasks.size - 1) {
+            used +=snprintf(json + used, current_size - used, "%s\n]}", task_json);
+        }
+        else {
+            used += snprintf(json + used, current_size - used, "%s,\n", task_json);
+        }
+        free(task_json);
     }
 
     return json;
