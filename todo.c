@@ -47,7 +47,9 @@ bool add_task(const Task task) {
     }
     tasks.data[tasks.size++] = task;
     printf("Task created successfully!\n");
-    save_task_list();
+    if (!save_task_list()) {
+        printf("Failed to save task list as JSON\n");
+    }
     return true;
 }
 
@@ -338,6 +340,9 @@ bool remove_task(const long id) {
         else {
             printf("%s", failed_malloc);
         }
+    }
+    if (!save_task_list()) {
+        printf("Failed to save task list as JSON\n");
     }
     printf("Successfully removed task!\n");
     return true;
