@@ -514,6 +514,66 @@ void recalibrate_ids(void) {
     }
 }
 
+bool edit_task(const long id) {
+
+    if (tasks.size == 0) {
+        printf("You have no tasks!\n");
+        return false;
+    }
+
+    else if (id > (long)tasks.size) {
+        printf("This task does not exist!\n");
+        return false;
+    }
+
+    else if (id <= 0) {
+        printf("Please enter a valid id\n");
+        return false;
+    }
+    
+    size_t index = (size_t)(id - 1);
+    Task *task = &tasks.data[index];
+
+    bool old_urgent = task -> urgent;
+    char *old_name = task -> name;
+
+
+    bool new_urgent = get_urgent();
+    char *new_name = get_name();
+    
+
+    if (new_name == NULL) {
+        printf("%s", failed_malloc);
+        return false;
+    }
+
+    
+
+    if (strcmp(old_name, new_name) == 0 && old_urgent == new_urgent) {
+        printf("New task is the same as old task!\n");
+        free(new_name);
+        return false;
+    }
+    free(task -> name);
+    task -> name = new_name;
+    task -> urgent = new_urgent;
+    if (!save_task_list()) {
+        task -> urgent = old_urgent;
+        task -> name = old_name;
+
+        free(new_name);
+
+        printf("Failed to save task list\n");
+        return false;
+    }
+
+    free(old_name);
+
+    
+    printf("Successfully edited task!\n");
+    return true;
+}
+
 bool free_task_memory(Task task) {
     free(task.name);
     return true;

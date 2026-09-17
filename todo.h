@@ -36,6 +36,7 @@ bool remove_task(const long id);
 bool sort_tasks_urgent(void);
 bool sort_tasks_date(void);
 void recalibrate_ids(void);
+bool edit_task(const long id);
 
 
 void set_date(Task *task);

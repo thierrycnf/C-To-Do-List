@@ -28,7 +28,8 @@ int main(void) {
             printf("B. View your tasks\n");
             printf("C. Delete a task\n");
             printf("D. Sort tasks\n");
-            printf("E. End program\n");
+            printf("E. Edit a task\n");
+            printf("F. End program\n");
             
         if (fgets(buffer, sizeof buffer, stdin) != NULL) {
             if (strchr(buffer, '\n') == NULL) {
@@ -93,6 +94,11 @@ int main(void) {
                 
             }
             else if (strcmp(buffer, "e") == 0) {
+                print_all_tasks();
+                long edit_id = get_id();
+                edit_task(edit_id);
+            }
+            else if (strcmp(buffer, "f") == 0) {
                 break;
         }   
             else{
@@ -119,3 +125,6 @@ int main(void) {
 
 //gcc -std=c17 -Wall -Wextra -Wpedantic -Wshadow -g -O0 main.c todo.c cJSON-1.7.19/cJSON.c -o main.exe; if ($LASTEXITCODE -eq 0) { .\main.exe }
 //compile and run
+
+//git log origin/main..HEAD 
+//view commits that haven't been pushed yet
