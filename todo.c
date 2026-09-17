@@ -788,7 +788,7 @@ bool json_to_task() {
         task_date.total = (task_date.year * 10000) + (task_date.month * 100) + task_date.day;
 
         Task task = {
-            .name = malloc(100),
+            .name = malloc(max_name_length),
             .id = (size_t)id -> valueint,
             .urgent = cJSON_IsTrue(urgent),
             .date = task_date
