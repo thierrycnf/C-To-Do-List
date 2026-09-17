@@ -5,6 +5,10 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include "cJSON-1.7.19/cJSON.h"
+
+const size_t max_name_length = 100;
+const char failed_malloc[] = "Failed to allocate memory\n";
 
 Task_List tasks = {
     .data = NULL,
@@ -37,13 +41,35 @@ bool add_task(const Task task) {
             tasks.capacity = new_capacity;
         }
         else {
-            printf("Failed to reallocate memory.\n");
+            printf("%s", failed_malloc);
             return false;
         }
     }
-
     tasks.data[tasks.size++] = task;
     printf("Task created successfully!\n");
+    save_task_list();
+    return true;
+}
+
+bool add_task_from_json(const Task task) {
+    if (tasks.size + 1 > tasks.capacity) {
+        size_t new_capacity = tasks.capacity * 2;
+        Task *temp = realloc(
+            tasks.data,
+            new_capacity * sizeof(Task)
+        );
+
+        if (temp != NULL) {
+            tasks.data = temp;
+            tasks.capacity = new_capacity;
+        }
+        else {
+            printf("%s", failed_malloc);
+            return false;
+        }
+    }
+    tasks.data[tasks.size++] = task;
+    save_task_list();
     return true;
 }
 
@@ -209,9 +235,9 @@ bool get_urgent(void) {
 }
 
 char *get_name(void) {
-    char *buffer = malloc(100 * sizeof(*buffer));
+    char *buffer = malloc(max_name_length * sizeof(*buffer));
      if (buffer == NULL) {
-        printf("Failed to allocate memory for name string\n");
+        printf("%s", failed_malloc);
         return NULL;
     }
 
@@ -237,7 +263,7 @@ char *get_sort_choice(void) {
     static size_t allocated_space = 10;
     char *buffer = malloc(allocated_space * sizeof(*buffer));
     if (buffer == NULL) {
-        printf("Failed to allocated memory for buffer\n");
+        printf("%s", failed_malloc);
         return NULL;
     }
     bool valid_input = false;
@@ -310,7 +336,7 @@ bool remove_task(const long id) {
             tasks.capacity = new_capacity;
         }
         else {
-            printf("Failed to reallocate memory.\n");
+            printf("%s", failed_malloc);
         }
     }
     printf("Successfully removed task!\n");
@@ -427,7 +453,7 @@ bool sort_tasks_urgent(void) {
 
     Task *sorted_tasks = malloc(tasks.size * sizeof(*sorted_tasks));
     if (sorted_tasks == NULL) {
-        printf("Unable to allocate memory for sorted tasks list!\n");
+        printf("%s", failed_malloc);
         return false;
     }
     size_t n = 0;
@@ -537,7 +563,7 @@ bool merge(size_t p, size_t q, size_t r) {
    if (L.data == NULL || R.data == NULL) {
         free(L.data);
         free(R.data);
-        printf("Failed to allocate memory subarray(s)\n");
+        printf("%s", failed_malloc);
         return false;
 }
 
@@ -670,4 +696,153 @@ char *task_list_to_json(void) {
     }
 
     return json;
+}
+bool save_task_list() {
+    char file_name[] = "tasks.txt";
+    FILE *f = fopen(file_name, "w");
+    if (f == NULL) {
+        printf("Failed to save data\n");
+        return false;
+    }
+
+    char *json = task_list_to_json();
+    fprintf(f, json);
+    free(json);
+
+    fclose(f);
+    return true;
+} 
+
+bool json_to_task() {
+    char file_name[] = "tasks.txt";
+    char *text = read_file(file_name);
+
+    if (text == NULL) {
+        printf("%s", failed_malloc);
+        return false;
+    }
+    cJSON *json = cJSON_Parse(text);
+
+    if (json == NULL) {
+        printf("%s", failed_malloc);
+        free(text);
+        return false;
+    }
+
+    cJSON *task_list_json = cJSON_GetObjectItemCaseSensitive(json, "tasks");
+
+    if (!cJSON_IsArray(task_list_json)) {
+        printf("JSON root is not a task list.\n");
+        cJSON_Delete(json);
+        free(text);
+        return false;
+    }
+
+
+    int task_count = cJSON_GetArraySize(task_list_json);
+    for (int i = 0; i < task_count; i++) {
+        cJSON *task_json = cJSON_GetArrayItem(task_list_json, i);
+
+        if (!cJSON_IsObject(task_json)) {
+            continue;
+        }
+
+        cJSON *id = cJSON_GetObjectItemCaseSensitive(task_json, "id");
+        cJSON *name = cJSON_GetObjectItemCaseSensitive(task_json, "name");
+        cJSON *urgent = cJSON_GetObjectItemCaseSensitive(task_json, "urgent");
+
+        if ((!cJSON_IsNumber(id)) || (!cJSON_IsString(name) || name->valuestring == NULL) || (!cJSON_IsBool(urgent))) {
+            printf("Failed to read JSON\n");
+            return false;
+        }
+
+        cJSON *date = cJSON_GetObjectItemCaseSensitive(task_json, "date");
+
+        if (!cJSON_IsObject(date)) {
+            printf("Failed to read JSON\n");
+            return false;
+        }
+
+        cJSON *day = cJSON_GetObjectItemCaseSensitive(date, "day");
+        cJSON *month = cJSON_GetObjectItemCaseSensitive(date, "month");
+        cJSON *year = cJSON_GetObjectItemCaseSensitive(date, "year");
+
+        if (!cJSON_IsNumber(day) || !cJSON_IsNumber(month) || !cJSON_IsNumber(year)) {
+            printf("Failed to read JSON\n");
+            return false;
+            }
+        
+
+        Date task_date = {
+            .day = (size_t)day -> valueint,
+            .month = (size_t)month -> valueint,
+            .year = (size_t)year -> valueint
+        };
+
+        task_date.total = (task_date.year * 10000) + (task_date.month * 100) + task_date.day;
+
+        Task task = {
+            .name = malloc(100),
+            .id = (size_t)id -> valueint,
+            .urgent = cJSON_IsTrue(urgent),
+            .date = task_date
+        };
+
+        if (task.name == NULL) {
+            printf("%s", failed_malloc);
+            return false;
+        }
+        snprintf(task.name, max_name_length, "%s", name -> valuestring);
+        if (!add_task_from_json(task)) {
+            free(task.name);
+            cJSON_Delete(json);
+            free(text);
+            return false;
+        }\
+    }
+    cJSON_Delete(json);
+    free(text);
+    return true;
+}
+
+    
+
+
+char *read_file(const char *filename) {
+    FILE *file = fopen(filename, "rb");
+    if (file == NULL)
+        return NULL;
+
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);
+    rewind(file);
+
+    char *text = malloc((size_t)size + 1);
+    if (text == NULL) {
+        fclose(file);
+        return NULL;
+    }
+
+    fread(text, 1, (size_t)size, file);
+    text[size] = '\0';
+
+    fclose(file);
+    return text;
+}
+
+long get_file_size(const char filename[]) {
+    FILE *file = fopen(filename, "rb");
+    if (file == NULL) {
+        return -1;
+    }
+
+    if (fseek(file, 0, SEEK_END) != 0) {
+        fclose(file);
+        return -1;
+    }
+
+    long size = ftell(file);
+    fclose(file);
+
+    return size;
 }

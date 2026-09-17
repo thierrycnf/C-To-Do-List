@@ -9,11 +9,12 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    add_test_tasks();
-    char *json = task_list_to_json();
-    if (json != NULL) {
-        printf("%s\n", json);
-    }
+    // add_test_tasks();
+    // char *json = task_list_to_json();
+    // if (json != NULL) {
+    //     printf("%s\n", json);
+    // }
+    json_to_task();
 
     char buffer[3];
     Task task;
@@ -116,5 +117,5 @@ int main(void) {
   
 
 
-//gcc -std=c17 -Wall -Wextra -Wpedantic -Wshadow -g -O0 main.c todo.c -o main.exe; if ($LASTEXITCODE -eq 0) { .\main.exe }
+//gcc -std=c17 -Wall -Wextra -Wpedantic -Wshadow -g -O0 main.c todo.c cJSON-1.7.19/cJSON.c -o main.exe; if ($LASTEXITCODE -eq 0) { .\main.exe }
 //compile and run

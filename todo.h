@@ -26,7 +26,6 @@ typedef struct {
 
 
 
-
 extern Task_List tasks;
 
 
@@ -64,5 +63,10 @@ bool free_task_list_memory(void);
 void my_to_lower(char *string);
 char *task_to_json(const Task *task);
 char *task_list_to_json(void);
+bool save_task_list();
+bool json_to_task(void);
+long get_file_size(const char filename[]);
+char *read_file(const char *filename);
+bool add_task_from_json(const Task task);
 
 #endif
