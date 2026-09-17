@@ -807,7 +807,7 @@ bool json_to_task() {
             cJSON_Delete(json);
             free(text);
             return false;
-        }\
+        }
     }
     cJSON_Delete(json);
     free(text);
