@@ -753,6 +753,8 @@ bool json_to_task() {
 
         if ((!cJSON_IsNumber(id)) || (!cJSON_IsString(name) || name->valuestring == NULL) || (!cJSON_IsBool(urgent))) {
             printf("Failed to read JSON\n");
+            cJSON_Delete(json);
+            free(text);
             return false;
         }
 
@@ -760,6 +762,8 @@ bool json_to_task() {
 
         if (!cJSON_IsObject(date)) {
             printf("Failed to read JSON\n");
+            cJSON_Delete(json);
+            free(text);
             return false;
         }
 
@@ -769,6 +773,8 @@ bool json_to_task() {
 
         if (!cJSON_IsNumber(day) || !cJSON_IsNumber(month) || !cJSON_IsNumber(year)) {
             printf("Failed to read JSON\n");
+            cJSON_Delete(json);
+            free(text);
             return false;
             }
         
@@ -790,6 +796,9 @@ bool json_to_task() {
 
         if (task.name == NULL) {
             printf("%s", failed_malloc);
+            free(task.name);
+            cJSON_Delete(json);
+            free(text);
             return false;
         }
         snprintf(task.name, max_name_length, "%s", name -> valuestring);
