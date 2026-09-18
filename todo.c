@@ -769,9 +769,16 @@ bool save_task_list() {
         return false;
     }
 
-    fputs(json_string, f);
+    if (fputs(json_string, f) == EOF) {
+        printf("Failed to write to file.\n");
+        fclose(f);
+        return false;
+    }   
    
-    fclose(f);
+    if (fclose(f) == EOF) {
+        printf("Failed to close file.\n");
+        return false;
+    }       
 
     free(json_string);
     cJSON_Delete(json);
