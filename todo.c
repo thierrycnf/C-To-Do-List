@@ -567,6 +567,7 @@ bool edit_task(const long id) {
     free(task -> name);
     task -> name = new_name;
     task -> urgent = new_urgent;
+    /*
     if (!save_task_list()) {
         task -> urgent = old_urgent;
         task -> name = old_name;
@@ -576,6 +577,7 @@ bool edit_task(const long id) {
         printf("%s", failed_save);
         return false;
     }
+    */
 
     free(old_name);
 
@@ -745,7 +747,7 @@ bool save_task_list() {
         return false;
     }
 
-     char *json_string = cJSON_print(json);
+     char *json_string = cJSON_Print(json);
 
     if (json_string == NULL) {
         cJSON_Delete(json);
@@ -770,7 +772,7 @@ bool save_task_list() {
 
     free(json_string);
     cJSON_Delete(json);
-    
+
     
     return true;
 } 
@@ -812,34 +814,20 @@ bool json_to_task() {
         cJSON *id = cJSON_GetObjectItemCaseSensitive(task_json, "id");
         cJSON *name = cJSON_GetObjectItemCaseSensitive(task_json, "name");
         cJSON *urgent = cJSON_GetObjectItemCaseSensitive(task_json, "urgent");
+        cJSON *day = cJSON_GetObjectItemCaseSensitive(task_json, "day");
+        cJSON *month = cJSON_GetObjectItemCaseSensitive(task_json, "month");
+        cJSON *year = cJSON_GetObjectItemCaseSensitive(task_json, "year");
 
-        if ((!cJSON_IsNumber(id)) || (!cJSON_IsString(name) || name->valuestring == NULL) || (!cJSON_IsBool(urgent))) {
+
+
+        if ((!cJSON_IsNumber(id)) || (!cJSON_IsString(name) || name->valuestring == NULL) || (!cJSON_IsBool(urgent) ||
+             !cJSON_IsNumber(day) || !cJSON_IsNumber(month) || !cJSON_IsNumber(year)))  {
             printf("Failed to read JSON\n");
             cJSON_Delete(json);
             free(text);
             return false;
         }
 
-        cJSON *date = cJSON_GetObjectItemCaseSensitive(task_json, "date");
-
-        if (!cJSON_IsObject(date)) {
-            printf("Failed to read JSON\n");
-            cJSON_Delete(json);
-            free(text);
-            return false;
-        }
-
-        cJSON *day = cJSON_GetObjectItemCaseSensitive(date, "day");
-        cJSON *month = cJSON_GetObjectItemCaseSensitive(date, "month");
-        cJSON *year = cJSON_GetObjectItemCaseSensitive(date, "year");
-
-        if (!cJSON_IsNumber(day) || !cJSON_IsNumber(month) || !cJSON_IsNumber(year)) {
-            printf("Failed to read JSON\n");
-            cJSON_Delete(json);
-            free(text);
-            return false;
-            }
-        
 
         Date task_date = {
             .day = (size_t)day -> valueint,

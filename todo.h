@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include "cJSON-1.7.19/cJSON.h"
 
 typedef struct {
     size_t day;
@@ -62,8 +63,8 @@ bool free_task_memory(Task task);
 bool free_task_list_memory(void);
 
 void my_to_lower(char *string);
-char *task_to_json(const Task *task);
-char *task_list_to_json(void);
+cJSON *task_to_json(const Task *task);
+cJSON *task_list_to_json(void);
 bool save_task_list();
 bool json_to_task(void);
 long get_file_size(const char filename[]);
