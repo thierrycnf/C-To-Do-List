@@ -72,9 +72,6 @@ bool add_task_from_json(const Task task) {
         }
     }
     tasks.data[tasks.size++] = task;
-    if (!save_task_list()) {
-        printf("%s", failed_save);
-    }
     return true;
 }
 
@@ -546,14 +543,20 @@ bool edit_task(const long id) {
 
     bool old_urgent = task -> urgent;
     char *old_name = malloc(max_name_length);
+    if (old_name == NULL) {
+        printf("%s", failed_malloc);
+        return false;
+    }
     snprintf(old_name, max_name_length, "%s", task -> name);
 
 
     bool new_urgent = get_urgent();
     char *new_name = get_name();
     
+    
 
     if (new_name == NULL) {
+        free(old_name);
         printf("%s", failed_malloc);
         return false;
     }
@@ -563,6 +566,7 @@ bool edit_task(const long id) {
     if (strcmp(old_name, new_name) == 0 && old_urgent == new_urgent) {
         printf("New task is the same as old task!\n");
         free(new_name);
+        free(old_name);
         return false;
     }
     free(task -> name);
