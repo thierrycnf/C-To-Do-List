@@ -738,18 +738,40 @@ cJSON *task_list_to_json(void) {
     return root;
 }
 bool save_task_list() {
-    char file_name[] = "tasks.txt";
-    FILE *f = fopen(file_name, "w");
-    if (f == NULL) {
-        printf("Failed to save data\n");
+    cJSON *json = task_list_to_json();
+
+    if (json == NULL) {
+        printf("Failed to create JSON.\n");
         return false;
     }
 
-    char *json = task_list_to_json();
-    fprintf(f, json);
-    free(json);
+     char *json_string = cJSON_print(json);
 
+    if (json_string == NULL) {
+        cJSON_Delete(json);
+        printf("Failed to convert JSON to string.\n");
+        return false;
+    }
+
+    
+    char file_name[] = "tasks.txt";
+    FILE *f = fopen(file_name, "w");
+
+    if (f == NULL) {
+        free(json_string);
+        cJSON_Delete(json);
+        printf("Failed to open %s\n", file_name);
+        return false;
+    }
+
+    fputs(json_string, f);
+   
     fclose(f);
+
+    free(json_string);
+    cJSON_Delete(json);
+    
+    
     return true;
 } 
 
