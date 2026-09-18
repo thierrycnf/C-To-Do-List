@@ -687,90 +687,55 @@ bool merge(size_t p, size_t q, size_t r) {
     return true;
 }   
 
-char *task_to_json(const Task *task) {
-    size_t default_size = 1024;
-    char *json = malloc(default_size * sizeof(*json));
-    if (json == NULL) {
+cJSON *task_to_json(const Task *task) {
+    cJSON *json_task = cJSON_CreateObject();
+
+    if (json_task == NULL) {
         return NULL;
     }
 
-    snprintf(
-        json, default_size, 
-        "{"
-            "\"id\" : %zu,"
-            "\"name\" : \"%s\","
-            "\"urgent\" : %s,"
-            "\"date\": {"
-                "\"day\" : %zu,"
-                "\"month\" : %zu,"
-                "\"year\" : %zu"
-            "}"
-        "}",
-        task -> id, 
-        task-> name,
-        task -> urgent ? "true" : "false",
-        task -> date.day,
-        task -> date.month,
-        task -> date.year
-    );
+    if (cJSON_AddNumberToObject(json_task, "id", task->id) == NULL ||
+        cJSON_AddStringToObject(json_task, "name", task->name) == NULL ||
+        cJSON_AddBoolToObject(json_task, "urgent", task->urgent) == NULL ||
+        cJSON_AddNumberToObject(json_task, "day", task->date.day) == NULL ||
+        cJSON_AddNumberToObject(json_task, "month", task->date.month) == NULL ||
+        cJSON_AddNumberToObject(json_task, "year", task->date.year) == NULL) {
 
-    size_t json_size = strlen(json) + 1;
-
-    char *temp = realloc(json, json_size * sizeof(*json));
-    if (temp != NULL) {
-        json = temp;
+        cJSON_Delete(json_task);
+        return NULL;
     }
 
-    return json;
+    return json_task;
 }
 
-char *task_list_to_json(void) {
-    if (tasks.size == 0) {
-        char json_literal[] = "{\"tasks\" : []}";
-        size_t json_size = sizeof(json_literal) + 1;
-        char *json = malloc(json_size);
-        snprintf(json, json_size, "%s", json_literal);
-        return json;
-    }
-    size_t default_size = (size_t)(snprintf(NULL, 0, "%s,", task_to_json(&tasks.data[0]))) + 30; //how many bytes are needed
-    //to store the first task's json data
-    size_t current_size = default_size;
-    char *json = malloc(current_size);
-    if (json == NULL) {
+cJSON *task_list_to_json(void) {
+    cJSON *root = cJSON_CreateObject();
+
+    if (root == NULL) {
         return NULL;
-    }   
-    size_t used = 0;
-    char *first_json = task_to_json(&tasks.data[0]);
-
-    used += snprintf(json + used, current_size - used, "{\"tasks\" : [\n%s,\n", first_json);
-    if (tasks.size == 1) {
-        used += snprintf(json + used, current_size - used, "]}");
-        return json;
     }
-    free(first_json);
 
-    for (size_t i = 1; i < tasks.size; i++) {
-        char *task_json = task_to_json(&tasks.data[i]);
-        if (task_json == NULL) {
+    cJSON *json_tasks = cJSON_AddArrayToObject(root, "tasks");
+
+    if (json_tasks == NULL) {
+        cJSON_Delete(root);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < tasks.size; i++) {
+
+        cJSON *json_task = task_to_json(&tasks.data[i]);
+
+        if (json_task == NULL) {
+            cJSON_Delete(root);
             return NULL;
         }
 
-        current_size += snprintf(NULL, 0, "%s", task_json) + 3;
-        char *temp = realloc(json, current_size);
-        if (temp != NULL) {
-            json = temp;
-        }
-
-        if (i == tasks.size - 1) {
-            used +=snprintf(json + used, current_size - used, "%s\n]}", task_json);
-        }
-        else {
-            used += snprintf(json + used, current_size - used, "%s,\n", task_json);
-        }
-        free(task_json);
+        cJSON_AddItemToArray(json_tasks, json_task);
     }
 
-    return json;
+
+    return root;
 }
 bool save_task_list() {
     char file_name[] = "tasks.txt";
