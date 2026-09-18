@@ -545,7 +545,8 @@ bool edit_task(const long id) {
     Task *task = &tasks.data[index];
 
     bool old_urgent = task -> urgent;
-    char *old_name = task -> name;
+    char *old_name = malloc(max_name_length);
+    snprintf(old_name, max_name_length, "%s", task -> name);
 
 
     bool new_urgent = get_urgent();
@@ -567,7 +568,6 @@ bool edit_task(const long id) {
     free(task -> name);
     task -> name = new_name;
     task -> urgent = new_urgent;
-    /*
     if (!save_task_list()) {
         task -> urgent = old_urgent;
         task -> name = old_name;
@@ -577,7 +577,6 @@ bool edit_task(const long id) {
         printf("%s", failed_save);
         return false;
     }
-    */
 
     free(old_name);
 
