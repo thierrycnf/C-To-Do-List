@@ -9,6 +9,7 @@
 
 const size_t max_name_length = 100;
 const char failed_malloc[] = "Failed to allocate memory\n";
+const char failed_save[] = "Failed to save task list as JSON\n";
 
 Task_List tasks = {
     .data = NULL,
@@ -48,7 +49,7 @@ bool add_task(const Task task) {
     tasks.data[tasks.size++] = task;
     printf("Task created successfully!\n");
     if (!save_task_list()) {
-        printf("Failed to save task list as JSON\n");
+        printf("%s", failed_save);
     }
     return true;
 }
@@ -71,7 +72,9 @@ bool add_task_from_json(const Task task) {
         }
     }
     tasks.data[tasks.size++] = task;
-    save_task_list();
+    if (!save_task_list()) {
+        printf("%s", failed_save);
+    }
     return true;
 }
 
@@ -342,7 +345,7 @@ bool remove_task(const long id) {
         }
     }
     if (!save_task_list()) {
-        printf("Failed to save task list as JSON\n");
+        printf("%s", failed_save);
     }
     printf("Successfully removed task!\n");
     return true;
@@ -483,8 +486,12 @@ bool sort_tasks_urgent(void) {
     free(sorted_tasks);
     
     if (is_sorted_urgent()) {
-        printf("Successfully sorted tasks by urgency!\n");
-        return true;
+        if (save_task_list()) {
+            printf("Successfully sorted tasks by urgency!\n");
+            return true;
+        }
+        printf("Failed to save task list as JSON\n");
+        return false;
     }
     
     printf("Unsuccessfully sorted tasks by urgency!\n");
@@ -495,6 +502,9 @@ bool sort_tasks_date(void) {
     if (is_sorted_date() == false) {
         if ( merge_sort(0, tasks.size - 1)) {
             recalibrate_ids();
+            if (!save_task_list()) {
+                printf("%s", failed_save);
+            }
             printf("Successfully sorted tasks by date!\n");
             return true;
         }
@@ -563,7 +573,7 @@ bool edit_task(const long id) {
 
         free(new_name);
 
-        printf("Failed to save task list\n");
+        printf("%s", failed_save);
         return false;
     }
 
