@@ -770,12 +770,15 @@ bool save_task_list() {
     }
 
     if (fputs(json_string, f) == EOF) {
+        free(json_string);
+        cJSON_Delete(json);
         printf("Failed to write to file.\n");
         fclose(f);
         return false;
     }   
    
     if (fclose(f) == EOF) {
+        free(json_string);
         printf("Failed to close file.\n");
         return false;
     }       
@@ -792,13 +795,13 @@ bool json_to_task() {
     char *text = read_file(file_name);
 
     if (text == NULL) {
-        printf("%s", failed_malloc);
+        printf("Could not find %s\n", file_name);
         return false;
     }
     cJSON *json = cJSON_Parse(text);
 
     if (json == NULL) {
-        printf("%s", failed_malloc);
+        printf("Failed to parse tasks file.\n");
         free(text);
         return false;
     }
