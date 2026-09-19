@@ -65,7 +65,7 @@ bool free_task_list_memory(void);
 void my_to_lower(char *string);
 cJSON *task_to_json(const Task *task);
 cJSON *task_list_to_json(void);
-bool save_task_list();
+bool save_task_list(void);
 bool json_to_task(void);
 long get_file_size(const char filename[]);
 char *read_file(const char *filename);

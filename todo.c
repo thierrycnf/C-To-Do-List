@@ -742,7 +742,7 @@ cJSON *task_list_to_json(void) {
 
     return root;
 }
-bool save_task_list() {
+bool save_task_list(void) {
     cJSON *json = task_list_to_json();
 
     if (json == NULL) {
