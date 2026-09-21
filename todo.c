@@ -6,6 +6,9 @@
 #include <string.h>
 #include <ctype.h>
 #include "cJSON-1.7.19/cJSON.h"
+#ifdef _WIN32
+#include <windows.h> //only includes this if compiling on windows
+#endif
 
 const size_t max_name_length = 100;
 const char failed_malloc[] = "Failed to allocate memory\n";
@@ -50,6 +53,7 @@ bool add_task(const Task task) {
     printf("Task created successfully!\n");
     if (!save_task_list()) {
         printf("%s", failed_save);
+        remove_task_from_json(tasks.size);
     }
     return true;
 }
@@ -73,6 +77,57 @@ bool add_task_from_json(const Task task) {
     }
     tasks.data[tasks.size++] = task;
     return true;
+}
+
+bool remove_task_from_json(const long id) {
+    if (tasks.size == 0) {
+        printf("You have no tasks!\n");
+        return false;
+    }
+
+    else if (id > (long)tasks.size) {
+        printf("This task does not exist!\n");
+        return false;
+    }
+
+    else if (id <= 0) {
+        printf("Please enter a valid id\n");
+        return false;
+    }
+    
+    size_t index = (size_t)(id - 1);
+    Task task = tasks.data[index];
+    free_task_memory(task);
+    for (size_t i = index; i + 1< tasks.size; i++) {
+        tasks.data[i] = tasks.data[i + 1];
+        tasks.data[i].id -= 1;
+    }
+
+
+    if (--tasks.size <= tasks.capacity / 4) {
+        size_t new_capacity = tasks.capacity / 2;
+        if (new_capacity == 0) {
+            new_capacity = 1;
+        }
+        Task *temp = realloc(tasks.data, new_capacity * sizeof(Task)
+            
+    );
+
+        if (temp != NULL) {
+            tasks.data = temp;
+            tasks.capacity = new_capacity;
+        }
+        else {
+            printf("%s", failed_malloc);
+        }
+    }
+    return true;
+    }
+
+void remove_all_tasks(void) {
+    for (size_t i = 0; i < tasks.size; i++) {
+        remove_task_from_json(1);
+    }
 }
 
 void add_test_tasks(void) {
@@ -759,34 +814,49 @@ bool save_task_list(void) {
     }
 
     
+    char temp_name[] = "tasks.tmp";
     char file_name[] = "tasks.txt";
-    FILE *f = fopen(file_name, "w");
+    FILE *f = fopen(temp_name, "w");
 
     if (f == NULL) {
         free(json_string);
         cJSON_Delete(json);
-        printf("Failed to open %s\n", file_name);
+        printf("Failed to open %s\n", temp_name);
         return false;
     }
 
     if (fputs(json_string, f) == EOF) {
+        fclose(f);
+        remove(temp_name);
         free(json_string);
         cJSON_Delete(json);
         printf("Failed to write to file.\n");
-        fclose(f);
+        
         return false;
     }   
    
     if (fclose(f) == EOF) {
+        remove(temp_name);
         free(json_string);
+        cJSON_Delete(json);
         printf("Failed to close file.\n");
         return false;
     }       
+    
+    
+    if (!replace_file(temp_name, file_name)) {
+        free(json_string);
+        cJSON_Delete(json);
+        remove(temp_name);
+
+        printf("Failed to replace %s\n", file_name);
+
+        return false;
+    }
 
     free(json_string);
     cJSON_Delete(json);
 
-    
     return true;
 } 
 
@@ -821,7 +891,11 @@ bool json_to_task() {
         cJSON *task_json = cJSON_GetArrayItem(task_list_json, i);
 
         if (!cJSON_IsObject(task_json)) {
-            continue;
+            printf("Invalid task in JSON\n");
+            remove_all_tasks();
+            cJSON_Delete(json);
+            free(text);
+            return false;
         }
 
         cJSON *id = cJSON_GetObjectItemCaseSensitive(task_json, "id");
@@ -836,6 +910,7 @@ bool json_to_task() {
         if ((!cJSON_IsNumber(id)) || (!cJSON_IsString(name) || name->valuestring == NULL) || (!cJSON_IsBool(urgent) ||
              !cJSON_IsNumber(day) || !cJSON_IsNumber(month) || !cJSON_IsNumber(year)))  {
             printf("Failed to read JSON\n");
+            remove_all_tasks();
             cJSON_Delete(json);
             free(text);
             return false;
@@ -859,7 +934,7 @@ bool json_to_task() {
 
         if (task.name == NULL) {
             printf("%s", failed_malloc);
-            free(task.name);
+            remove_all_tasks();
             cJSON_Delete(json);
             free(text);
             return false;
@@ -869,6 +944,8 @@ bool json_to_task() {
             free(task.name);
             cJSON_Delete(json);
             free(text);
+            remove_all_tasks();
+            printf("Failed to add tasks\n");
             return false;
         }
     }
@@ -918,3 +995,15 @@ long get_file_size(const char filename[]) {
 
     return size;
 }
+
+bool replace_file(const char *temp_name, const char *file_name) {
+    #ifdef _WIN32 //this code only runs when compiling on windows
+        return MoveFileExA(
+            temp_name, 
+            file_name, 
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH
+        ) != 0;
+    #else   //this code only runs when compiling on non-windows
+        return rename(temp_name, file_name) == 0; 
+    #endif
+    }

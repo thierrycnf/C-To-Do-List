@@ -70,5 +70,7 @@ bool json_to_task(void);
 long get_file_size(const char filename[]);
 char *read_file(const char *filename);
 bool add_task_from_json(const Task task);
+bool remove_task_from_json(const long id);
+bool replace_file(const char *temp_name, const char *file_name);
 
 #endif
