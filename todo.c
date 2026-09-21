@@ -125,7 +125,7 @@ bool remove_task_from_json(const long id) {
     }
 
 void remove_all_tasks(void) {
-    for (size_t i = 0; i < tasks.size; i++) {
+    while (tasks.size > 0) {
         remove_task_from_json(1);
     }
 }
