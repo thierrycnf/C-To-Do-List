@@ -1,16 +1,9 @@
 {
 	"tasks":	[{
 			"id":	1,
-			"name":	"do taxes",
-			"urgent":	true,
-			"day":	19,
-			"month":	9,
-			"year":	2026
-		}, {
-			"id":	2,
 			"name":	"walk dog",
 			"urgent":	false,
-			"day":	19,
+			"day":	21,
 			"month":	9,
 			"year":	2026
 		}]

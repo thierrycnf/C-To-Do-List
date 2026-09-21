@@ -372,21 +372,25 @@ bool remove_task(const long id) {
     
     size_t index = (size_t)(id - 1);
     Task task = tasks.data[index];
-    free_task_memory(task);
     for (size_t i = index; i + 1< tasks.size; i++) {
         tasks.data[i] = tasks.data[i + 1];
         tasks.data[i].id -= 1;
     }
 
+    tasks.size--;
+    
+    if (!save_task_list()) {
+        undo_remove_task(task, index);
+        printf("%s", failed_save);
+        return false;
+    }
 
-    if (--tasks.size <= tasks.capacity / 4) {
+    if (tasks.size <= tasks.capacity / 4) {
         size_t new_capacity = tasks.capacity / 2;
         if (new_capacity == 0) {
             new_capacity = 1;
         }
-        Task *temp = realloc(tasks.data, new_capacity * sizeof(Task)
-            
-    );
+        Task *temp = realloc(tasks.data, new_capacity * sizeof(Task));
 
         if (temp != NULL) {
             tasks.data = temp;
@@ -396,13 +400,23 @@ bool remove_task(const long id) {
             printf("%s", failed_malloc);
         }
     }
-    if (!save_task_list()) {
-        printf("%s", failed_save);
-    }
+
+    free_task_memory(task);
     printf("Successfully removed task!\n");
+
     return true;
     }
-        
+
+void undo_remove_task(const Task task, const size_t index) {
+   for (size_t i = tasks.size; i > index; i--) {
+        tasks.data[i] = tasks.data[i - 1];
+   }
+
+   tasks.data[index] = task;
+   tasks.size++;
+   recalibrate_ids(0);
+   return;
+}
 
 long get_id(void) {
     char buffer[32];
@@ -534,7 +548,7 @@ bool sort_tasks_urgent(void) {
         tasks.data[i] = sorted_tasks[i];
    }
 
-    recalibrate_ids();
+    recalibrate_ids(0);
     free(sorted_tasks);
     
     if (is_sorted_urgent()) {
@@ -553,9 +567,10 @@ bool sort_tasks_urgent(void) {
 bool sort_tasks_date(void) {
     if (is_sorted_date() == false) {
         if ( merge_sort(0, tasks.size - 1)) {
-            recalibrate_ids();
+            recalibrate_ids(0);
             if (!save_task_list()) {
                 printf("%s", failed_save);
+                return false;
             }
             printf("Successfully sorted tasks by date!\n");
             return true;
@@ -570,8 +585,8 @@ bool sort_tasks_date(void) {
 
 } 
 
-void recalibrate_ids(void) {
-    for (size_t i = 0; i < tasks.size; i++) {
+void recalibrate_ids(size_t index) {
+    for (size_t i = index; i < tasks.size; i++) {
         tasks.data[i].id = i + 1;
     }
 }

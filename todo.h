@@ -34,9 +34,10 @@ bool initialise_task_list(void);
 bool add_task(const Task task);
 void add_test_tasks(void);
 bool remove_task(const long id);
+void undo_remove_task(const Task task, const size_t index);
 bool sort_tasks_urgent(void);
 bool sort_tasks_date(void);
-void recalibrate_ids(void);
+void recalibrate_ids(size_t index);
 bool edit_task(const long id);
 
 
