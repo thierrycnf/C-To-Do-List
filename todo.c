@@ -50,11 +50,14 @@ bool add_task(const Task task) {
         }
     }
     tasks.data[tasks.size++] = task;
-    printf("Task created successfully!\n");
+    
     if (!save_task_list()) {
         printf("%s", failed_save);
         remove_task_from_json(tasks.size);
+        return false;
     }
+    printf("Task created successfully!\n");
+
     return true;
 }
 
@@ -525,9 +528,19 @@ bool sort_tasks_urgent(void) {
         return true;
     }
 
+    Task *backup_tasks = malloc(tasks.size * sizeof(*backup_tasks));
+
+    if (backup_tasks == NULL) {
+        printf("%s", failed_malloc);
+        return false;
+    }
+
+    memcpy(backup_tasks, tasks.data, tasks.size * sizeof(*backup_tasks));
+
     Task *sorted_tasks = malloc(tasks.size * sizeof(*sorted_tasks));
     if (sorted_tasks == NULL) {
         printf("%s", failed_malloc);
+        free(backup_tasks);
         return false;
     }
     size_t n = 0;
@@ -554,28 +567,44 @@ bool sort_tasks_urgent(void) {
     if (is_sorted_urgent()) {
         if (save_task_list()) {
             printf("Successfully sorted tasks by urgency!\n");
+            free(backup_tasks);
             return true;
         }
         printf("Failed to save task list as JSON\n");
+        memcpy(tasks.data, backup_tasks, tasks.size * sizeof(*backup_tasks));
+        free(backup_tasks);
         return false;
     }
     
+    free(backup_tasks);
     printf("Unsuccessfully sorted tasks by urgency!\n");
     return false;
 }
 
 bool sort_tasks_date(void) {
-    if (is_sorted_date() == false) {
+    if (!is_sorted_date()) {
+        Task *backup_tasks = malloc(tasks.size * sizeof(*backup_tasks));
+        if (backup_tasks == NULL) {
+            printf("%s", failed_malloc);
+            return false;
+        }
+
+        memcpy(backup_tasks, tasks.data, tasks.size * sizeof(*backup_tasks));
         if ( merge_sort(0, tasks.size - 1)) {
             recalibrate_ids(0);
             if (!save_task_list()) {
+                memcpy(tasks.data, backup_tasks, tasks.size * sizeof(*backup_tasks));
+                free(backup_tasks);
                 printf("%s", failed_save);
                 return false;
             }
             printf("Successfully sorted tasks by date!\n");
+            free(backup_tasks);
             return true;
         }
         else {
+            memcpy(tasks.data, backup_tasks, tasks.size * sizeof(*backup_tasks));
+            free(backup_tasks);
             printf("Sorting by date failed!\n");
             return false;
         }
