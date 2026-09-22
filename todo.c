@@ -1067,9 +1067,21 @@ char *read_file(const char *filename) {
     if (file == NULL)
         return NULL;
 
-    fseek(file, 0, SEEK_END);
+    if (fseek(file, 0, SEEK_END) != 0) {
+        fclose(file);
+        return NULL;
+    }   
     long size = ftell(file);
-    rewind(file);
+
+    if (size < 0) {
+        fclose(file);
+        return NULL;
+    }
+
+    if (fseek(file, 0, SEEK_SET) != 0) {
+        fclose(file);
+        return NULL;
+    }
 
     char *text = malloc((size_t)size + 1);
     if (text == NULL) {
@@ -1077,7 +1089,15 @@ char *read_file(const char *filename) {
         return NULL;
     }
 
-    fread(text, 1, (size_t)size, file);
+    size_t bytes_read = fread(text, 1, (size_t)size, file);
+
+    if (bytes_read != (size_t)size) {
+        free(text);
+        fclose(file);
+        return NULL;
+    }
+
+
     text[size] = '\0';
 
     fclose(file);
