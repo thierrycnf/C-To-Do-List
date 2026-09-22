@@ -14,7 +14,11 @@ int main(void) {
     // if (json != NULL) {
     //     printf("%s\n", json);
     // }
-    json_to_task();
+    if (!json_to_task()) {
+        fprintf(stderr, "Could not load tasks.txt.\n");
+        free_task_list_memory();
+        return EXIT_FAILURE;
+}
 
     char buffer[3];
     Task task;

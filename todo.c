@@ -6,6 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "cJSON-1.7.19/cJSON.h"
+#include <errno.h>
 #ifdef _WIN32
 #include <windows.h> //only includes this if compiling on windows
 #endif
@@ -303,7 +304,7 @@ char *get_name(void) {
 
     printf("Enter task name\n");
 
-    if (fgets(buffer, 100, stdin) == NULL) {
+    if (fgets(buffer, max_name_length, stdin) == NULL) {
         printf("Unable to read input\n");
         free(buffer);
         return NULL;
@@ -906,27 +907,61 @@ bool save_task_list(void) {
 
 bool json_to_task() {
     char file_name[] = "tasks.txt";
+    char corrupt_name[] = "tasks.txt.corrupt";
     char *text = read_file(file_name);
 
     if (text == NULL) {
-        printf("Could not find %s\n", file_name);
-        return false;
+        if (!create_tasks_txt()) {
+            printf("Could not create %s\n", file_name);
+            return false;
+        }
+
+        text = read_file(file_name);
+
+        if (text == NULL) {
+            printf("Could not read newly created %s\n", file_name);
+            return false;
+        }
+
     }
     cJSON *json = cJSON_Parse(text);
 
     if (json == NULL) {
-        printf("Failed to parse tasks file.\n");
         free(text);
-        return false;
+        if (remove(corrupt_name) != 0 && errno != ENOENT) {
+            return false;
+        }
+        
+        if (rename(file_name, corrupt_name) != 0) {
+            return false;
+        }
+        if (!create_tasks_txt()) {
+            return false;
+        }
+        
+        printf("Failed to parse tasks file, creating new tasks file\n");
+        return json_to_task();
     }
 
     cJSON *task_list_json = cJSON_GetObjectItemCaseSensitive(json, "tasks");
 
     if (!cJSON_IsArray(task_list_json)) {
-        printf("JSON root is not a task list.\n");
         cJSON_Delete(json);
-        free(text);
-        return false;
+        free(text);   
+
+        if (remove(corrupt_name) != 0 && errno != ENOENT) {
+            return false;
+        }
+        
+        if (rename(file_name, corrupt_name) != 0) {
+            return false;
+        }
+        if (!create_tasks_txt()) {
+            return false;
+        }
+
+         printf("JSON root is not a task list, creating new tasks file\n");
+        return json_to_task();
     }
 
 
@@ -935,11 +970,24 @@ bool json_to_task() {
         cJSON *task_json = cJSON_GetArrayItem(task_list_json, i);
 
         if (!cJSON_IsObject(task_json)) {
-            printf("Invalid task in JSON\n");
             remove_all_tasks();
             cJSON_Delete(json);
             free(text);
-            return false;
+
+            if (remove(corrupt_name) != 0 && errno != ENOENT) {
+                return false;
+            }
+        
+            if (rename(file_name, corrupt_name) != 0) {
+                return false;
+            }
+            if (!create_tasks_txt()) {
+                return false;
+            }
+
+            printf("Invalid task in JSON\n");
+
+            return json_to_task();
         }
 
         cJSON *id = cJSON_GetObjectItemCaseSensitive(task_json, "id");
@@ -953,11 +1001,24 @@ bool json_to_task() {
 
         if ((!cJSON_IsNumber(id)) || (!cJSON_IsString(name) || name->valuestring == NULL) || (!cJSON_IsBool(urgent) ||
              !cJSON_IsNumber(day) || !cJSON_IsNumber(month) || !cJSON_IsNumber(year)))  {
-            printf("Failed to read JSON\n");
+            
             remove_all_tasks();
             cJSON_Delete(json);
             free(text);
-            return false;
+
+            if (remove(corrupt_name) != 0 && errno != ENOENT) {
+                return false;
+            }
+        
+            if (rename(file_name, corrupt_name) != 0) {
+                return false;
+            }
+            if (!create_tasks_txt()) {
+                return false;
+            }
+
+            printf("Failed to read JSON\n");
+            return json_to_task();
         }
 
 
@@ -1051,3 +1112,28 @@ bool replace_file(const char *temp_name, const char *file_name) {
         return rename(temp_name, file_name) == 0; 
     #endif
     }
+
+bool create_tasks_txt(void) {
+    const char file_name[] = "tasks.txt";
+    FILE *file = fopen(file_name, "w");
+    if (file == NULL) {
+        return false;
+    }
+
+
+    if (fputs("{\"tasks\":[]}", file) == EOF) {
+        fclose(file);
+        printf("Failed to write to %s\n", file_name);
+        return false;
+    }
+
+    if (fclose(file) == EOF) {
+        printf("Failed to close %s\n", file_name);
+        return false;
+    }
+
+    return true;
+
+
+
+}   
