@@ -476,10 +476,6 @@ bool task_cmp(Task T1, Task T2) {
     }
 
 
-    if (T1.id != T2.id) {
-        return false;
-    }
-
     if (T1.urgent != T2.urgent) {
         return false;
     }
@@ -1143,12 +1139,12 @@ bool create_tasks_txt(void) {
 
     if (fputs("{\"tasks\":[]}", file) == EOF) {
         fclose(file);
-        printf("Failed to write to %s\n", file_name);
+        fprintf(stderr, "Failed to write to %s\n", file_name);
         return false;
     }
 
     if (fclose(file) == EOF) {
-        printf("Failed to close %s\n", file_name);
+        fprintf(stderr, "Failed to close %s\n", file_name);
         return false;
     }
 
@@ -1157,3 +1153,4 @@ bool create_tasks_txt(void) {
 
 
 }   
+

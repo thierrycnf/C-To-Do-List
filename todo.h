@@ -28,6 +28,9 @@ typedef struct {
 
 
 extern Task_List tasks;
+extern const size_t max_name_length;
+extern const char failed_malloc[];
+extern const char failed_save[];
 
 
 bool initialise_task_list(void);
@@ -35,10 +38,12 @@ bool add_task(const Task task);
 void add_test_tasks(void);
 bool remove_task(const long id);
 void undo_remove_task(const Task task, const size_t index);
+void remove_all_tasks(void);
 bool sort_tasks_urgent(void);
 bool sort_tasks_date(void);
 void recalibrate_ids(size_t index);
 bool edit_task(const long id);
+bool stock_edit(const long id, const char *edit);
 
 
 void set_date(Task *task);
@@ -74,5 +79,7 @@ bool add_task_from_json(const Task task);
 bool remove_task_from_json(const long id);
 bool replace_file(const char *temp_name, const char *file_name);
 bool create_tasks_txt(void);
+
+
 
 #endif

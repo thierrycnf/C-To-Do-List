@@ -1,4 +1,5 @@
 #include "todo.h"
+#include "test.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +9,15 @@ int main(void) {
     if (!initialise_task_list()) {
         return EXIT_FAILURE;
     }
+
+    if (!test_all()) {
+        return EXIT_FAILURE;
+    }
+    else {
+        return EXIT_SUCCESS;
+    }
+
+    printf("\n");
 
     // add_test_tasks();
     // char *json = task_list_to_json();
@@ -127,7 +137,7 @@ int main(void) {
   
 
 
-//gcc -std=c17 -Wall -Wextra -Wpedantic -Wshadow -g -O0 main.c todo.c cJSON-1.7.19/cJSON.c -o main.exe; if ($LASTEXITCODE -eq 0) { .\main.exe }
+//gcc -std=c17 -Wall -Wextra -Wpedantic -Wshadow -g -O0 main.c todo.c test.c cJSON-1.7.19/cJSON.c -o main.exe; if ($LASTEXITCODE -eq 0) { .\main.exe }
 //compile and run
 
 //git log origin/main..HEAD 
