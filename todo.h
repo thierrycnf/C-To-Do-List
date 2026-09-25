@@ -28,7 +28,7 @@ typedef struct {
 
 
 extern Task_List tasks;
-extern const size_t max_name_length;
+extern const int max_name_length;
 extern const char failed_malloc[];
 extern const char failed_save[];
 

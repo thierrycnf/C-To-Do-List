@@ -11,7 +11,7 @@
 #include <windows.h> //only includes this if compiling on windows
 #endif
 
-const size_t max_name_length = 100;
+const int max_name_length = 100;
 const char failed_malloc[] = "Failed to allocate memory\n";
 const char failed_save[] = "Failed to save task list as JSON\n";
 
@@ -54,7 +54,7 @@ bool add_task(const Task task) {
     
     if (!save_task_list()) {
         printf("%s", failed_save);
-        remove_task_from_json(tasks.size);
+        remove_task_from_json((long)tasks.size);
         return false;
     }
     printf("Task created successfully!\n");
@@ -321,7 +321,7 @@ char *get_name(void) {
 }
 
 char *get_sort_choice(void) {
-    static size_t allocated_space = 10;
+    static int allocated_space = 10;
     char *buffer = malloc(allocated_space * sizeof(*buffer));
     if (buffer == NULL) {
         printf("%s", failed_malloc);
@@ -795,12 +795,12 @@ cJSON *task_to_json(const Task *task) {
         return NULL;
     }
 
-    if (cJSON_AddNumberToObject(json_task, "id", task->id) == NULL ||
+    if (cJSON_AddNumberToObject(json_task, "id", (double)task->id) == NULL ||
         cJSON_AddStringToObject(json_task, "name", task->name) == NULL ||
         cJSON_AddBoolToObject(json_task, "urgent", task->urgent) == NULL ||
-        cJSON_AddNumberToObject(json_task, "day", task->date.day) == NULL ||
-        cJSON_AddNumberToObject(json_task, "month", task->date.month) == NULL ||
-        cJSON_AddNumberToObject(json_task, "year", task->date.year) == NULL) {
+        cJSON_AddNumberToObject(json_task, "day", (double)task->date.day) == NULL ||
+        cJSON_AddNumberToObject(json_task, "month", (double)task->date.month) == NULL ||
+        cJSON_AddNumberToObject(json_task, "year", (double)task->date.year) == NULL) {
 
         cJSON_Delete(json_task);
         return NULL;

@@ -10,14 +10,14 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    if (!test_all()) {
-        return EXIT_FAILURE;
-    }
-    else {
-        return EXIT_SUCCESS;
-    }
+    // if (!test_all()) {
+    //     return EXIT_FAILURE;
+    // }
+    // else {
+    //     return EXIT_SUCCESS;
+    // }
 
-    printf("\n");
+    // printf("\n");
 
     // add_test_tasks();
     // char *json = task_list_to_json();
