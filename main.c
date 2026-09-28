@@ -1,4 +1,5 @@
 #include "todo.h"
+#include "test.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,8 +10,25 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    add_test_tasks();
-    
+    // if (!test_all()) {
+    //     return EXIT_FAILURE;
+    // }
+    // else {
+    //     return EXIT_SUCCESS;
+    // }
+
+    // printf("\n");
+
+    // add_test_tasks();
+    // char *json = task_list_to_json();
+    // if (json != NULL) {
+    //     printf("%s\n", json);
+    // }
+    if (!json_to_task()) {
+        fprintf(stderr, "Could not load tasks.txt.\n");
+        free_task_list_memory();
+        return EXIT_FAILURE;
+}
 
     char buffer[3];
     Task task;
@@ -24,7 +42,8 @@ int main(void) {
             printf("B. View your tasks\n");
             printf("C. Delete a task\n");
             printf("D. Sort tasks\n");
-            printf("E. End program\n");
+            printf("E. Edit a task\n");
+            printf("F. End program\n");
             
         if (fgets(buffer, sizeof buffer, stdin) != NULL) {
             if (strchr(buffer, '\n') == NULL) {
@@ -51,9 +70,7 @@ int main(void) {
                     printf("You have no tasks!\n");
                 }
                 else {
-                    for (size_t i = 0; i < tasks.size; i++) {
-                        print_task(tasks.data[i]);
-                    }
+                    print_all_tasks();
             }
             }
             else if (strcmp(buffer, "c") == 0) {
@@ -61,6 +78,7 @@ int main(void) {
                     printf("You have no tasks!\n");
                     continue;
                 }
+                print_all_tasks();
                 long delete_id = get_id();
                 remove_task(delete_id);
             }
@@ -90,6 +108,11 @@ int main(void) {
                 
             }
             else if (strcmp(buffer, "e") == 0) {
+                print_all_tasks();
+                long edit_id = get_id();
+                edit_task(edit_id);
+            }
+            else if (strcmp(buffer, "f") == 0) {
                 break;
         }   
             else{
@@ -109,10 +132,13 @@ int main(void) {
 
     return EXIT_SUCCESS;   
 }
-    
+
 
   
 
 
-//gcc -std=c17 -Wall -Wextra -Wpedantic -Wshadow -g -O0 main.c todo.c -o main.exe; if ($LASTEXITCODE -eq 0) { .\main.exe }
+//gcc -std=c17 -Wall -Wextra -Wpedantic -Wshadow -g -O0 main.c todo.c test.c cJSON-1.7.19/cJSON.c -o main.exe; if ($LASTEXITCODE -eq 0) { .\main.exe }
 //compile and run
+
+//git log origin/main..HEAD 
+//view commits that haven't been pushed yet

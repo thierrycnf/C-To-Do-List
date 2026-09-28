@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include "cJSON-1.7.19/cJSON.h"
 
 typedef struct {
     size_t day;
@@ -26,22 +27,29 @@ typedef struct {
 
 
 
-
 extern Task_List tasks;
+extern const int max_name_length;
+extern const char failed_malloc[];
+extern const char failed_save[];
 
 
 bool initialise_task_list(void);
 bool add_task(const Task task);
 void add_test_tasks(void);
 bool remove_task(const long id);
+void undo_remove_task(const Task task, const size_t index);
+void remove_all_tasks(void);
 bool sort_tasks_urgent(void);
 bool sort_tasks_date(void);
-void recalibrate_ids(void);
+void recalibrate_ids(size_t index);
+bool edit_task(const long id);
+bool stock_edit(const long id, const char *edit);
 
 
 void set_date(Task *task);
 
 void print_task(Task task);
+void print_all_tasks(void);
 bool get_urgent(void);
 char *get_name(void);
 long get_id(void);
@@ -61,5 +69,17 @@ bool free_task_memory(Task task);
 bool free_task_list_memory(void);
 
 void my_to_lower(char *string);
+cJSON *task_to_json(const Task *task);
+cJSON *task_list_to_json(void);
+bool save_task_list(void);
+bool json_to_task(void);
+long get_file_size(const char filename[]);
+char *read_file(const char *filename);
+bool add_task_from_json(const Task task);
+bool remove_task_from_json(const long id);
+bool replace_file(const char *temp_name, const char *file_name);
+bool create_tasks_txt(void);
+
+
 
 #endif
